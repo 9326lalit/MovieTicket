@@ -27,67 +27,74 @@ interface Theater {
 const CreateShow: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [theaters, setTheaters] = useState<Theater[]>([]);
-
   const [selectedMovieId, setSelectedMovieId] = useState("");
   const [selectedTheaterId, setSelectedTheaterId] = useState("");
-  const [screen, setScreen] = useState("");
   const [price, setPrice] = useState("");
-  const [showTime, setShowTime] = useState("");
+  const [showTimes, setShowTimes] = useState<string[]>([]);
+  const [currentTime, setCurrentTime] = useState("");
   const [showDate, setShowDate] = useState<Date | undefined>(new Date());
 
   useEffect(() => {
     const fetchData = async () => {
-      const movieRes = await axios.get("http://localhost:5000/api/movies/getall");
+      const movieRes = await axios.get(`http://localhost:5000/api/movies/getall`);
       const theaterRes = await axios.get("http://localhost:5000/api/theaters/gettheaters");
-
       setMovies(movieRes.data);
       setTheaters(theaterRes.data);
     };
     fetchData();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-  
-    if (!selectedMovieId || !selectedTheaterId || !screen || !price || !showTime || !showDate) {
-      alert("Please fill all fields");
-      return;
-    }
-  
-    try {
-      await axios.post("http://localhost:5000/api/shows/createshow", {
-        movieId: selectedMovieId,
-        theaterId: selectedTheaterId,
-        screen,
-        price: Number(price),
-        showTime,
-        showDate: showDate.toISOString(),
-      });
-  
-      alert("Show Created Successfully!");
-      setSelectedMovieId("");
-      setSelectedTheaterId("");
-      setScreen("");
-      setPrice("");
-      setShowTime("");
-      setShowDate(new Date());
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        console.error("Axios error:", error.response?.data || error.message);
-        alert(error.response?.data?.message || "Failed to create show.");
-      } else {
-        console.error("Unexpected error:", error);
-        alert("Failed to create show.");
-      }
+  const addShowTime = () => {
+    if (currentTime && !showTimes.includes(currentTime)) {
+      setShowTimes((prev) => [...prev, currentTime]);
+      setCurrentTime("");
     }
   };
-  
+
+  const removeShowTime = (time: string) => {
+    setShowTimes((prev) => prev.filter((t) => t !== time));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedMovieId || !selectedTheaterId || !showDate || !price || showTimes.length === 0) {
+      alert("Please fill all fields and add at least one time slot.");
+      return;
+    }
+
+    try {
+      const formattedDate = format(showDate, "yyyy-MM-dd");
+
+      const requests = showTimes.map((time) =>
+        axios.post("http://localhost:5000/api/shows/createshow", {
+          movieId: selectedMovieId,
+          theaterId: selectedTheaterId,
+          date: formattedDate,
+          time: time,
+          price: price,
+        })
+      );
+
+      await Promise.all(requests);
+      alert("Shows created successfully!");
+
+      // Reset form
+      setSelectedMovieId("");
+      setSelectedTheaterId("");
+      setPrice("");
+      setShowTimes([]);
+      setShowDate(new Date());
+    } catch (error: any) {
+      console.error(error);
+      alert("Error creating shows. Check console for more info.");
+    }
+  };
 
   return (
     <div className="max-w-xl mx-auto mt-10">
       <Card>
         <CardHeader>
-          <CardTitle>Create New Show</CardTitle>
+          <CardTitle>Create Show</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -124,32 +131,41 @@ const CreateShow: React.FC = () => {
             </div>
 
             <div>
-              <Label>Screen</Label>
-              <Input
-                type="text"
-                placeholder="e.g. Screen 1"
-                value={screen}
-                onChange={(e) => setScreen(e.target.value)}
-              />
-            </div>
-
-            <div>
               <Label>Ticket Price</Label>
               <Input
                 type="number"
-                placeholder="e.g. 250"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
+                placeholder="e.g. 888"
               />
             </div>
 
             <div>
               <Label>Show Time</Label>
-              <Input
-                type="time"
-                value={showTime}
-                onChange={(e) => setShowTime(e.target.value)}
-              />
+              <div className="flex items-center gap-2">
+                <Input
+                  type="time"
+                  value={currentTime}
+                  onChange={(e) => setCurrentTime(e.target.value)}
+                />
+                <Button type="button" onClick={addShowTime}>
+                  Add Time
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {showTimes.map((time, idx) => (
+                  <div key={idx} className="flex items-center gap-1 bg-gray-200 px-2 py-1 rounded">
+                    <span>{time}</span>
+                    <button
+                      type="button"
+                      className="text-red-500"
+                      onClick={() => removeShowTime(time)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div>
@@ -158,7 +174,7 @@ const CreateShow: React.FC = () => {
                 mode="single"
                 selected={showDate}
                 onSelect={setShowDate}
-                className="rounded-md border"
+                className="border rounded-md"
               />
               {showDate && (
                 <p className="text-sm text-muted-foreground mt-1">
@@ -168,7 +184,7 @@ const CreateShow: React.FC = () => {
             </div>
 
             <Button type="submit" className="w-full">
-              Create Show
+              Create Shows
             </Button>
           </form>
         </CardContent>

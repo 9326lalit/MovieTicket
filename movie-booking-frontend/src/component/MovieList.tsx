@@ -26,7 +26,7 @@ const MovieList: React.FC = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/movies/getall");
+        const res = await axios.get(`http://localhost:5000/api/movies/getall`);
         setMovies(res.data);
       } catch (err) {
         console.error("Error fetching movies:", err);
