@@ -1,6 +1,6 @@
-import  { useState } from 'react';
+import { useState, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
-import { Card ,CardContent} from '../components/ui/card';
+import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -8,9 +8,18 @@ import { Textarea } from '../components/ui/textarea';
 import { Separator } from '../components/ui/separator';
 import { ScrollArea } from '../components/ui/scroll-area';
 
+interface MovieForm {
+  title: string;
+  description: string;
+  duration: string;
+  language: string;
+  genre: string;
+  releaseDate: string;
+  poster: File | null;
+}
 
 const CreateMovie = () => {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<MovieForm>({
     title: '',
     description: '',
     duration: '',
@@ -23,16 +32,18 @@ const CreateMovie = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
 
-  const handleFileChange = (e) => {
-    setForm({ ...form, poster: e.target.files[0] });
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setForm({ ...form, poster: e.target.files[0] });
+    }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
@@ -44,7 +55,9 @@ const CreateMovie = () => {
     formData.append('language', form.language);
     formData.append('genre', form.genre);
     formData.append('releaseDate', form.releaseDate);
-    formData.append('poster', form.poster);
+    if (form.poster) {
+      formData.append('poster', form.poster);
+    }
 
     try {
       const response = await axios.post('http://localhost:5000/api/movies/create', formData);
@@ -58,7 +71,7 @@ const CreateMovie = () => {
         releaseDate: '',
         poster: null,
       });
-    } catch (error) {
+    } catch (error: any) {
       setMessage(`❌ Error: ${error?.response?.data?.msg || error.message}`);
     } finally {
       setLoading(false);
