@@ -46,13 +46,14 @@ const CreateShow: React.FC = () => {
     fetchData();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+  
     if (!selectedMovieId || !selectedTheaterId || !screen || !price || !showTime || !showDate) {
       alert("Please fill all fields");
       return;
     }
-
+  
     try {
       await axios.post("http://localhost:5000/api/shows/createshow", {
         movieId: selectedMovieId,
@@ -62,7 +63,7 @@ const CreateShow: React.FC = () => {
         showTime,
         showDate: showDate.toISOString(),
       });
-
+  
       alert("Show Created Successfully!");
       setSelectedMovieId("");
       setSelectedTheaterId("");
@@ -70,11 +71,17 @@ const CreateShow: React.FC = () => {
       setPrice("");
       setShowTime("");
       setShowDate(new Date());
-    } catch (err) {
-      console.error("Error creating show:", err);
-      alert("Failed to create show.");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error:", error.response?.data || error.message);
+        alert(error.response?.data?.message || "Failed to create show.");
+      } else {
+        console.error("Unexpected error:", error);
+        alert("Failed to create show.");
+      }
     }
   };
+  
 
   return (
     <div className="max-w-xl mx-auto mt-10">
