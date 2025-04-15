@@ -3,7 +3,7 @@ const movieSchema = new mongoose.Schema({
   title: String,
   description: String,
   duration: Number,
-  poster: String,
+  posterUrl: String,
   language: String,
   genre: [String],
   releaseDate: Date

@@ -1,86 +1,3 @@
-// import Movie from '../models/Movie.js';
-// import { upload } from '../middleware/uploadMiddleware.js'; // Import the upload middleware
-// import dotenv from 'dotenv'; // Import dotenv for environment variables
-// dotenv.config(); // Load environment variables from .env file
-
-
-
-
-// // Create a new movie
-
-
-
-// export const createMovie = async (req, res) => {
-//   try {
-//     // Use multer to handle the incoming file
-//     upload(req, res, async (err) => {
-//       if (err) {
-//         return res.status(400).json({ msg: 'Error during file upload', error: err.message });
-//       }
-
-//       // Extract the movie details from the request body
-//       const {
-//         title,
-//         description,
-//         duration,
-//         genre,
-//         language,
-//         releaseDate
-//       } = req.body;
-
-//       // Upload the image to Cloudinary if a file is present
-//       let posterUrl = '';
-//       if (req.file) {
-//         const cloudinaryResponse = await uploadToCloudinary(req.file);
-//         posterUrl = cloudinaryResponse.secure_url; // This is the URL of the uploaded image
-//       }
-
-//       // Create the new movie
-//       const newMovie = new Movie({
-//         title,
-//         description,
-//         duration,
-//         genre,
-//         language,
-//         releaseDate,
-//         posterUrl, // Save the URL from Cloudinary
-//       });
-
-//       // Save the movie to the database
-//       const savedMovie = await newMovie.save();
-//       return res.status(201).json(savedMovie);
-//     });
-//   } catch (err) {
-//     res.status(500).json({ msg: 'Failed to create movie', error: err.message });
-//   }
-// };
-
-
-
-
-
-// // Get all movies
-// export const getMovies = async (req, res) => {
-//   try {
-//     const movies = await Movie.find();
-//     res.json(movies);
-//   } catch (err) {
-//     res.status(500).json({ msg: 'Server error' });
-//   }
-// };
-
-// // Get a specific movie
-// export const getMovieById = async (req, res) => {
-//   try {
-//     const movie = await Movie.findById(req.params.id);
-//     if (!movie) return res.status(404).json({ msg: 'Movie not found' });
-//     res.json(movie);
-//   } catch (err) {
-//     res.status(500).json({ msg: 'Server error' });
-//   }
-// };
-
-
 import cloudinary from 'cloudinary';
 import Movie from '../models/Movie.js'; // Replace with your actual Movie model
 
@@ -100,7 +17,8 @@ export const createMovie = async (req, res) => {
       duration,
       genre,
       language,
-      releaseDate
+      releaseDate,
+       // This will be replaced by Cloudinary URL
     } = req.body;
 
     // Check if file is uploaded
@@ -131,6 +49,7 @@ export const createMovie = async (req, res) => {
 
         // Save the new movie to the database
         const savedMovie = await newMovie.save();
+        console.log(savedMovie);
 
         // Respond with the saved movie
         res.status(201).json(savedMovie);
