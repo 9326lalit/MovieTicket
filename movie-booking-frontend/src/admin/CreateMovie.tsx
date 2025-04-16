@@ -60,7 +60,7 @@ const CreateMovie = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/movies/create', formData);
+      const response = await axios.post('https://movizonebackend.onrender.com/api/movies/create', formData);
       setMessage('✅ Movie created successfully!');
       setForm({
         title: '',

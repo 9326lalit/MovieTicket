@@ -36,7 +36,7 @@ const SeatSelector: React.FC = () => {
   useEffect(() => {
     const fetchShows = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/shows/movie/${movieId}`);
+        const res = await axios.get(`https://movizonebackend.onrender.com/api/shows/movie/${movieId}`);
         setShows(res.data);
         if (res.data.length > 0) {
           setMovieDetails(res.data[0].movie);

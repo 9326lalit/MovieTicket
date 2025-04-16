@@ -36,8 +36,8 @@ const CreateShow: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const movieRes = await axios.get(`http://localhost:5000/api/movies/getall`);
-      const theaterRes = await axios.get("http://localhost:5000/api/theaters/gettheaters");
+      const movieRes = await axios.get(`https://movizonebackend.onrender.com/api/movies/getall`);
+      const theaterRes = await axios.get("https://movizonebackend.onrender.com/api/theaters/gettheaters");
       setMovies(movieRes.data);
       setTheaters(theaterRes.data);
     };
@@ -66,7 +66,7 @@ const CreateShow: React.FC = () => {
       const formattedDate = format(showDate, "yyyy-MM-dd");
 
       const requests = showTimes.map((time) =>
-        axios.post("http://localhost:5000/api/shows/createshow", {
+        axios.post("https://movizonebackend.onrender.com/api/shows/createshow", {
           movieId: selectedMovieId,
           theaterId: selectedTheaterId,
           date: formattedDate,
