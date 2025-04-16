@@ -157,7 +157,7 @@ const Navbar = ({ theme, setTheme }) => {
     >
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ml-15">
           <div className="relative">
             <Film className="h-8 w-8 text-primary" />
             <span className="absolute -top-1 -right-1">
@@ -330,7 +330,7 @@ const Navbar = ({ theme, setTheme }) => {
           
 
           {/* User Menu */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mr-15">
             {/* Profile Dialog */}
             <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
               <DialogTrigger asChild>
