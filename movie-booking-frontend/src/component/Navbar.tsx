@@ -1,72 +1,572 @@
-import { Link, NavLink } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { useState } from 'react';
 
-const Navbar = () => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const toggleDropdown = () => setDropdownOpen((prevState) => !prevState);
+import { useState, useEffect, useRef } from 'react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger
+} from "../../components/ui/navigation-menu";
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Badge } from "../components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import { Separator } from "../components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "../../components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+  SheetClose
+} from "../../components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../../components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../components/ui/tooltip";
+import { Switch } from "../../components/ui/switch";
+
+import { cn } from "../lib/utils";
+
+import {
+  Film,
+  User,
+  Search,
+  Menu,
+  Home,
+  Ticket,
+  Clock,
+  CalendarDays,
+  LogOut,
+  Bell,
+  Settings,
+  Heart,
+  PlayCircle,
+  Star,
+  Gift,
+  Sun,
+  Moon,
+  Wallet,
+  BookMarked,
+  History,
+  Mail,
+  Share2,
+
+  ChevronRight,
+
+} from "lucide-react";
+
+const Navbar = ({ theme, setTheme }) => {
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [recentSearches, setRecentSearches] = useState(['Dune', 'The Batman', 'Oppenheimer']);
+  const [showProfileDialog, setShowProfileDialog] = useState(false);
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      title: "New Arrival: Dune: Part Two",
+      message: "Tickets now available for booking!",
+      time: "2 hours ago",
+      read: false
+    },
+    {
+      id: 2,
+      title: "Booking confirmed: The Batman",
+      message: "Your booking #12345 has been confirmed.",
+      time: "1 day ago",
+      read: false
+    },
+    {
+      id: 3,
+      title: "Limited Offer",
+      message: "Get 20% off on your next booking with code CINE20",
+      time: "3 days ago",
+      read: true
+    }
+  ]);
+
+  const searchInputRef = useRef(null);
+  const location = useLocation();
+
+  // Handle scroll effect for navbar
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Handle search submission
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Save to recent searches if not already there
+      if (!recentSearches.includes(searchQuery.trim())) {
+        setRecentSearches(prev => [searchQuery.trim(), ...prev.slice(0, 4)]);
+      }
+      console.log("Searching for:", searchQuery);
+      // Would typically navigate to search results page here
+      // navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  // Handle notification marking as read
+  const markNotificationAsRead = (id) => {
+    setNotifications(notifications.map(notification =>
+      notification.id === id ? { ...notification, read: true } : notification
+    ));
+  };
+
+  // Count unread notifications
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <nav className="bg-blue-500 p-4 text-white flex justify-between items-center">
-      <div className="flex items-center">
-        <div className="text-xl font-bold text-white">CineSphere</div>
-      </div>
-
-      <div className="flex items-center gap-6">
-        {/* Search Bar */}
-        <input
-          type="text"
-          placeholder="Search Movies..."
-          className="p-2 bg-white rounded-md text-black focus:outline-none"
-        />
-
-        {/* Links */}
-        <div className="hidden md:flex gap-6">
-          <NavLink to="/" className={({ isActive }) => isActive ? 'text-yellow-300' : ''}>
-            <Button className="text-white hover:bg-blue-700">Home</Button>
-          </NavLink>
-          <NavLink to="/bookings" className={({ isActive }) => isActive ? 'text-yellow-300' : ''}>
-            <Button className="text-white hover:bg-blue-700">Bookings</Button>
-          </NavLink>
+    <header
+      className={`sticky top-0 z-50 w-full transition-all duration-300 ${isScrolled
+        ? "border-b shadow-sm bg-background/95 backdrop-blur-md"
+        : "bg-gradient-to-b from-background/80 to-background/0"
+        }`}
+    >
+      <div className="container flex h-16 items-center justify-between">
+        {/* Logo */}
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Film className="h-8 w-8 text-primary" />
+            <span className="absolute -top-1 -right-1">
+              <Badge variant="destructive" className="text-[10px] h-4 w-4 flex items-center justify-center p-0 rounded-full">4K</Badge>
+            </span>
+          </div>
+          <Link to="/" className="flex flex-col">
+            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-foreground">CineSphere</span>
+            <span className="text-[10px] text-muted-foreground -mt-1">Premium Experience</span>
+          </Link>
         </div>
 
-        {/* Profile Dropdown */}
-        <div className="relative">
-          <button
-            onClick={toggleDropdown}
-            className="flex items-center gap-2 p-2 bg-blue-700 rounded-full hover:bg-blue-800"
-          >
-            {/* Simple User SVG Icon */}
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A9 9 0 0112 15a9 9 0 016.879 2.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            {/* Down Arrow */}
-            <span className="text-white text-sm">▼</span>
-          </button>
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-white text-black shadow-lg rounded-md z-10">
-              <Link to="/profile" className="block px-4 py-2 hover:bg-gray-200">
-                Profile
-              </Link>
-              <Link to="/logout" className="block px-4 py-2 hover:bg-gray-200">
-                Logout
-              </Link>
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center space-x-4">
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavLink to="/">
+                  <NavigationMenuLink className={`group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 ${location.pathname === '/' ? 'bg-accent/30 font-semibold' : 'bg-background'}`}>
+                    <Home className="mr-2 h-4 w-4" />
+                    Home
+                  </NavigationMenuLink>
+                </NavLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="flex items-center mt-4">
+                  <PlayCircle className="mr-2 h-4 w-4" />
+                  Movies
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid gap-3 p-6 w-[400px] grid-cols-2">
+                    <div className="col-span-2">
+                      <div className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">Browse Movies</div>
+                      <Separator className="mb-2" />
+                    </div>
+                    <NavigationMenuLink asChild>
+                      <Link to="/movies/now-playing" className="flex items-start space-x-2 rounded-md p-3 hover:bg-accent">
+                        <div className="bg-primary/10 p-1 rounded-md">
+                          <Ticket className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium">Now Playing</div>
+                          <p className="text-xs text-muted-foreground">
+                            Currently in theaters
+                          </p>
+                        </div>
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/movies/coming-soon" className="flex items-start space-x-2 rounded-md p-3 hover:bg-accent">
+                        <div className="bg-primary/10 p-1 rounded-md">
+                          <Clock className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium">Coming Soon</div>
+                          <p className="text-xs text-muted-foreground">
+                            Upcoming releases
+                          </p>
+                        </div>
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/movies/popular" className="flex items-start space-x-2 rounded-md p-3 hover:bg-accent">
+                        <div className="bg-primary/10 p-1 rounded-md">
+                          <Heart className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium">Popular</div>
+                          <p className="text-xs text-muted-foreground">
+                            Fan favorites
+                          </p>
+                        </div>
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/movies/top-rated" className="flex items-start space-x-2 rounded-md p-3 hover:bg-accent">
+                        <div className="bg-primary/10 p-1 rounded-md">
+                          <Star className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium">Top Rated</div>
+                          <p className="text-xs text-muted-foreground">
+                            Critically acclaimed
+                          </p>
+                        </div>
+                      </Link>
+                    </NavigationMenuLink>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavLink to="/bookings">
+                  <NavigationMenuLink className={`group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 ${location.pathname === '/bookings' ? 'bg-accent/30 font-semibold' : 'bg-background'}`}>
+                    <CalendarDays className="mr-2 h-4 w-4" />
+                    Bookings
+                  </NavigationMenuLink>
+                </NavLink>
+              </NavigationMenuItem>
+
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
+
+        {/* Search, Notifications, Theme Toggle and User Menu */}
+        <div className="flex items-center gap-3">
+          {/* Search Bar */}
+          <div className="relative flex items-center">
+            {isSearchVisible ? (
+              <form onSubmit={handleSearchSubmit}>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Search movies, actors, genres..."
+                    className="w-64 pl-10 bg-background border-primary/20 focus-visible:ring-primary/30 transition-all"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    autoFocus
+                    onBlur={() => {
+                      if (!searchQuery) {
+                        setIsSearchVisible(false);
+                      }
+                    }}
+                  />
+                  {searchQuery && (
+                    <div className="absolute top-full left-0 w-full mt-1 bg-background rounded-md border shadow-lg z-50">
+                      <div className="p-2 text-xs text-muted-foreground font-medium">Recent Searches</div>
+                      {recentSearches.map((search, index) => (
+                        <div
+                          key={index}
+                          className="px-3 py-2 hover:bg-accent flex items-center justify-between cursor-pointer"
+                          onClick={() => {
+                            setSearchQuery(search);
+                            searchInputRef.current?.focus();
+                          }}
+                        >
+                          <div className="flex items-center">
+                            <History className="h-3 w-3 mr-2 text-muted-foreground" />
+                            {search}
+                          </div>
+                          <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </form>
+            ) : (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setIsSearchVisible(true)}
+                      className="rounded-full border-primary/20 hover:bg-primary/10 hover:text-primary"
+                    >
+                      <Search className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Search</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+
+          {/* Notifications */}
+          <div className="hidden md:block">
+            <DropdownMenu>
+
+              <DropdownMenuContent align="end" className="w-80">
+                <DropdownMenuLabel className="flex items-center justify-between">
+                  <span>Notifications</span>
+                  <Button variant="ghost" size="sm" className="h-auto p-0 text-xs text-primary hover:text-primary/80">
+                    Mark all as read
+                  </Button>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <div className="max-h-[300px] overflow-auto">
+                  {notifications.length === 0 ? (
+                    <div className="p-4 text-center text-muted-foreground">
+                      <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p>No notifications yet</p>
+                    </div>
+                  ) : (
+                    notifications.map((notification) => (
+                      <DropdownMenuItem
+                        key={notification.id}
+                        className={cn(
+                          "cursor-pointer flex flex-col items-start p-3",
+                          !notification.read && "bg-primary/5"
+                        )}
+                        onClick={() => markNotificationAsRead(notification.id)}
+                      >
+                        <div className="font-medium">{notification.title}</div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {notification.message}
+                        </p>
+                        <div className="text-xs text-primary mt-1">{notification.time}</div>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/notifications" className="w-full text-center text-xs text-primary justify-center">
+                    View all
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* User Menu */}
+          <div className="flex items-center gap-2">
+            {/* Profile Dialog */}
+            <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" className="rounded-full p-0 h-10 w-10 overflow-hidden">
+                  <Avatar className="h-10 w-10 border-2 border-primary/20 cursor-pointer hover:border-primary transition-colors">
+                    <AvatarImage src="https://i.pravatar.cc/100" alt="User" />
+                    <AvatarFallback className="bg-primary/10 text-primary">JD</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Profile</DialogTitle>
+                  <DialogDescription>
+                    Manage your account settings and profile
+                  </DialogDescription>
+                </DialogHeader>
+
+
+              </DialogContent>
+            </Dialog>
+
+
+
+            {/* Mobile Menu */}
+            <div className="md:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon" className="md:hidden rounded-full border-primary/20 hover:bg-primary/10 hover:text-primary">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="overflow-y-auto">
+                  <SheetHeader>
+                    <SheetTitle className="flex items-center gap-2">
+                      <Film className="h-5 w-5 text-primary" />
+                      <span className="font-bold">CineSphere</span>
+                    </SheetTitle>
+                  </SheetHeader>
+
+                  <div className="flex flex-col gap-6 py-6">
+                    <div className="flex items-center space-x-3" onClick={() => setShowProfileDialog(true)}>
+                      <Avatar className="h-12 w-12 border-2 border-primary/20 cursor-pointer">
+                        <AvatarImage src="https://i.pravatar.cc/100" alt="User" />
+                        <AvatarFallback className="bg-primary/10 text-primary">JD</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium">John Doe</p>
+                        <div className="flex items-center">
+                          <Badge variant="outline" className="text-xs px-1 border-primary/20 text-primary mr-2">Premium</Badge>
+                          <p className="text-xs text-muted-foreground">1,250 points</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="text"
+                        placeholder="Search movies..."
+                        className="w-full pl-10"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider px-1">Main Menu</div>
+                      <nav className="flex flex-col">
+                        <Link to="/" className="flex items-center px-3 py-2 hover:bg-accent rounded-md">
+                          <Home className="mr-2 h-4 w-4" />
+                          Home
+                        </Link>
+                        <Link to="/movies/now-playing" className="flex items-center px-3 py-2 hover:bg-accent rounded-md">
+                          <Ticket className="mr-2 h-4 w-4" />
+                          Now Playing
+                        </Link>
+                        <Link to="/movies/coming-soon" className="flex items-center px-3 py-2 hover:bg-accent rounded-md">
+                          <Clock className="mr-2 h-4 w-4" />
+                          Coming Soon
+                        </Link>
+                        <Link to="/movies/popular" className="flex items-center px-3 py-2 hover:bg-accent rounded-md">
+                          <Heart className="mr-2 h-4 w-4" />
+                          Popular
+                        </Link>
+                        <Link to="/movies/top-rated" className="flex items-center px-3 py-2 hover:bg-accent rounded-md">
+                          <Star className="mr-2 h-4 w-4" />
+                          Top Rated
+                        </Link>
+                        <Link to="/bookings" className="flex items-center px-3 py-2 hover:bg-accent rounded-md">
+                          <CalendarDays className="mr-2 h-4 w-4" />
+                          Bookings
+                        </Link>
+                        <Link to="/rewards" className="flex items-center px-3 py-2 hover:bg-accent rounded-md">
+                          <Gift className="mr-2 h-4 w-4" />
+                          Rewards
+                        </Link>
+                      </nav>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-1">
+                      <div className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider px-1">Notifications</div>
+                      <div className="space-y-2">
+                        {notifications.slice(0, 2).map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={cn(
+                              "p-3 rounded-md border",
+                              !notification.read && "bg-primary/5 border-primary/20"
+                            )}
+                          >
+                            <div className="font-medium text-sm">{notification.title}</div>
+                            <p className="text-xs text-muted-foreground mt-1">{notification.message}</p>
+                            <div className="text-xs text-primary mt-1">{notification.time}</div>
+                          </div>
+                        ))}
+                        <Link to="/notifications" className="flex items-center px-3 py-2 text-primary text-sm justify-center">
+                          View all notifications
+                        </Link>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-1">
+                      <div className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider px-1">Your Account</div>
+                      <nav className="flex flex-col">
+                        <Link to="/profile" className="flex items-center px-3 py-2 hover:bg-accent rounded-md">
+                          <User className="mr-2 h-4 w-4" />
+                          Profile
+                        </Link>
+                        <Link to="/watchlist" className="flex items-center justify-between px-3 py-2 hover:bg-accent rounded-md">
+                          <div className="flex items-center">
+                            <BookMarked className="mr-2 h-4 w-4" />
+                            Watchlist
+                          </div>
+                          <Badge variant="outline">12</Badge>
+                        </Link>
+                        <Link to="/wallet" className="flex items-center justify-between px-3 py-2 hover:bg-accent rounded-md">
+                          <div className="flex items-center">
+                            <Wallet className="mr-2 h-4 w-4" />
+                            Wallet & Payments
+                          </div>
+                          <Badge variant="outline">$45</Badge>
+                        </Link>
+                        <div className="flex items-center justify-between px-3 py-2 hover:bg-accent rounded-md">
+                          <div className="flex items-center">
+                            <Moon className="mr-2 h-4 w-4" />
+                            Dark Mode
+                          </div>
+                          <Switch
+                            checked={theme === "dark"}
+                            onCheckedChange={() => setTheme(theme === "dark" ? "light" : "dark")}
+                          />
+                        </div>
+                        <Link to="/settings" className="flex items-center px-3 py-2 hover:bg-accent rounded-md">
+                          <Settings className="mr-2 h-4 w-4" />
+                          Settings
+                        </Link>
+                        <Link to="/help" className="flex items-center px-3 py-2 hover:bg-accent rounded-md">
+                          <Mail className="mr-2 h-4 w-4" />
+                          Help & Support
+                        </Link>
+                        <Link to="/share" className="flex items-center px-3 py-2 hover:bg-accent rounded-md">
+                          <Share2 className="mr-2 h-4 w-4" />
+                          Invite Friends
+                        </Link>
+                      </nav>
+                    </div>
+                  </div>
+
+                  <SheetFooter>
+                    <SheetClose asChild>
+                      <Link to="/logout">
+                        <Button variant="destructive" className="w-full flex items-center">
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Logout
+                        </Button>
+                      </Link>
+                    </SheetClose>
+                  </SheetFooter>
+                </SheetContent>
+              </Sheet>
             </div>
-          )}
+          </div>
         </div>
       </div>
-
-      {/* Mobile Dropdown Toggle */}
-      <div className="md:hidden">
-        <button
-          onClick={toggleDropdown}
-          className="p-2 bg-blue-700 rounded-full text-white"
-        >
-          ▼
-        </button>
-      </div>
-    </nav>
+    </header>
   );
 };
 

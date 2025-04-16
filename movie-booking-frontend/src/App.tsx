@@ -1,7 +1,5 @@
 // src/App.tsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// import MovieList from './component/MovieList.tsx';
-// import BookingSummaryPage from './pages/BookingSummarPage.tsx';
 import Home from './pages/Home.tsx';
 import SeatSelector from './component/SeatSelector.tsx';
 import  Profile  from './pages/Profile.tsx';
@@ -10,6 +8,7 @@ import Navbar from './component/Navbar.tsx';
 import CreateMovie from './admin/CreateMovie.tsx';
 import CreateShow from './admin/CreateShow.tsx';
 import Auth from './auth/Auth.tsx';
+// import CommingSoon from './pages/comingsoon.tsx';
 
 
 const App = () => {
@@ -24,6 +23,7 @@ const App = () => {
 
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/movie/:movieId" element={<SeatSelector />} />
+        {/* <Route path="/movie/comingsoon" element={<CommingSoon />} /> */}
 
 
         <Route path="/auth" element={<Auth />} />
