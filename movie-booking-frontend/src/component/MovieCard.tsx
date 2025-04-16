@@ -21,13 +21,13 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick }) => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="relative aspect-[2/3] w-full overflow-hidden bg-black">
+        <div className="relative aspect-[2/3] w-full overflow-hidden bg-white">
           {/* Movie Poster */}
           {movie.posterUrl ? (
             <img 
               src={movie.posterUrl} 
               alt={movie.title} 
-              className={`h-full w-full object-cover transition-transform duration-500 ${isHovered ? 'scale-110 opacity-70' : 'scale-100'}`}
+              className={`h-full w-full object-cover transition-transform duration-500 ${isHovered ? 'scale-105 opacity-95' : 'scale-100'}`}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
