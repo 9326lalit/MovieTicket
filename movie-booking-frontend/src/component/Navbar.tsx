@@ -1,7 +1,7 @@
 
 
 import { useState, useEffect, useRef } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation , useNavigate } from 'react-router-dom';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -17,11 +17,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Separator } from "../components/ui/separator";
 import {
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
 } from "../../components/ui/dropdown-menu";
 import {
   Sheet,
@@ -60,13 +55,12 @@ import {
   Clock,
   CalendarDays,
   LogOut,
-  Bell,
+
   Settings,
   Heart,
   PlayCircle,
   Star,
   Gift,
-  Sun,
   Moon,
   Wallet,
   BookMarked,
@@ -110,6 +104,7 @@ const Navbar = ({ theme, setTheme }) => {
 
   const searchInputRef = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Handle scroll effect for navbar
   useEffect(() => {
@@ -138,6 +133,10 @@ const Navbar = ({ theme, setTheme }) => {
       // navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
     }
   };
+  const handleOpenProfile = () => {
+    navigate(`/profile`);
+    // setShowProfileDialog(false);
+  }
 
   // Handle notification marking as read
   const markNotificationAsRead = (id) => {
@@ -328,52 +327,7 @@ const Navbar = ({ theme, setTheme }) => {
             )}
           </div>
 
-          {/* Notifications */}
-          <div className="hidden md:block">
-            <DropdownMenu>
-
-              <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel className="flex items-center justify-between">
-                  <span>Notifications</span>
-                  <Button variant="ghost" size="sm" className="h-auto p-0 text-xs text-primary hover:text-primary/80">
-                    Mark all as read
-                  </Button>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <div className="max-h-[300px] overflow-auto">
-                  {notifications.length === 0 ? (
-                    <div className="p-4 text-center text-muted-foreground">
-                      <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p>No notifications yet</p>
-                    </div>
-                  ) : (
-                    notifications.map((notification) => (
-                      <DropdownMenuItem
-                        key={notification.id}
-                        className={cn(
-                          "cursor-pointer flex flex-col items-start p-3",
-                          !notification.read && "bg-primary/5"
-                        )}
-                        onClick={() => markNotificationAsRead(notification.id)}
-                      >
-                        <div className="font-medium">{notification.title}</div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {notification.message}
-                        </p>
-                        <div className="text-xs text-primary mt-1">{notification.time}</div>
-                      </DropdownMenuItem>
-                    ))
-                  )}
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/notifications" className="w-full text-center text-xs text-primary justify-center">
-                    View all
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          
 
           {/* User Menu */}
           <div className="flex items-center gap-2">
@@ -382,21 +336,12 @@ const Navbar = ({ theme, setTheme }) => {
               <DialogTrigger asChild>
                 <Button variant="ghost" className="rounded-full p-0 h-10 w-10 overflow-hidden">
                   <Avatar className="h-10 w-10 border-2 border-primary/20 cursor-pointer hover:border-primary transition-colors">
-                    <AvatarImage src="https://i.pravatar.cc/100" alt="User" />
+                    <AvatarImage onClick={handleOpenProfile} src="https://i.pravatar.cc/100" alt="User" />
                     <AvatarFallback className="bg-primary/10 text-primary">JD</AvatarFallback>
                   </Avatar>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Profile</DialogTitle>
-                  <DialogDescription>
-                    Manage your account settings and profile
-                  </DialogDescription>
-                </DialogHeader>
-
-
-              </DialogContent>
+             
             </Dialog>
 
 
@@ -479,29 +424,8 @@ const Navbar = ({ theme, setTheme }) => {
 
                     <Separator />
 
-                    <div className="space-y-1">
-                      <div className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider px-1">Notifications</div>
-                      <div className="space-y-2">
-                        {notifications.slice(0, 2).map((notification) => (
-                          <div
-                            key={notification.id}
-                            className={cn(
-                              "p-3 rounded-md border",
-                              !notification.read && "bg-primary/5 border-primary/20"
-                            )}
-                          >
-                            <div className="font-medium text-sm">{notification.title}</div>
-                            <p className="text-xs text-muted-foreground mt-1">{notification.message}</p>
-                            <div className="text-xs text-primary mt-1">{notification.time}</div>
-                          </div>
-                        ))}
-                        <Link to="/notifications" className="flex items-center px-3 py-2 text-primary text-sm justify-center">
-                          View all notifications
-                        </Link>
-                      </div>
-                    </div>
+                    
 
-                    <Separator />
 
                     <div className="space-y-1">
                       <div className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider px-1">Your Account</div>
@@ -510,34 +434,8 @@ const Navbar = ({ theme, setTheme }) => {
                           <User className="mr-2 h-4 w-4" />
                           Profile
                         </Link>
-                        <Link to="/watchlist" className="flex items-center justify-between px-3 py-2 hover:bg-accent rounded-md">
-                          <div className="flex items-center">
-                            <BookMarked className="mr-2 h-4 w-4" />
-                            Watchlist
-                          </div>
-                          <Badge variant="outline">12</Badge>
-                        </Link>
-                        <Link to="/wallet" className="flex items-center justify-between px-3 py-2 hover:bg-accent rounded-md">
-                          <div className="flex items-center">
-                            <Wallet className="mr-2 h-4 w-4" />
-                            Wallet & Payments
-                          </div>
-                          <Badge variant="outline">$45</Badge>
-                        </Link>
-                        <div className="flex items-center justify-between px-3 py-2 hover:bg-accent rounded-md">
-                          <div className="flex items-center">
-                            <Moon className="mr-2 h-4 w-4" />
-                            Dark Mode
-                          </div>
-                          <Switch
-                            checked={theme === "dark"}
-                            onCheckedChange={() => setTheme(theme === "dark" ? "light" : "dark")}
-                          />
-                        </div>
-                        <Link to="/settings" className="flex items-center px-3 py-2 hover:bg-accent rounded-md">
-                          <Settings className="mr-2 h-4 w-4" />
-                          Settings
-                        </Link>
+                        
+                        
                         <Link to="/help" className="flex items-center px-3 py-2 hover:bg-accent rounded-md">
                           <Mail className="mr-2 h-4 w-4" />
                           Help & Support
