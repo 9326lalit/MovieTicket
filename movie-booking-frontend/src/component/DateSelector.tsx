@@ -1,37 +1,36 @@
-
-// DateSelector.tsx
 import React from 'react';
-import { format, addDays } from 'date-fns';
-import { Calendar } from '../components/ui/calendar';
+import { format, parseISO } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { Calendar } from '../components/ui/calendar';
 import { cn } from '../lib/utils';
+
+interface Show {
+  _id: string;
+  date: string;
+}
 
 interface DateSelectorProps {
   selectedDate: Date;
   isCalendarOpen: boolean;
   setIsCalendarOpen: (open: boolean) => void;
   handleDateSelect: (date: Date) => void;
+  shows: Show[];
 }
 
-const DateSelector: React.FC<DateSelectorProps> = ({ 
-  selectedDate, 
-  isCalendarOpen, 
-  setIsCalendarOpen, 
-  handleDateSelect 
+const DateSelector: React.FC<DateSelectorProps> = ({
+  selectedDate,
+  isCalendarOpen,
+  setIsCalendarOpen,
+  handleDateSelect,
+  shows
 }) => {
-  // Generate dates for quick selection (next 7 days)
-  const quickDates = Array.from({ length: 7 }, (_, i) => {
-    const date = addDays(new Date(), i);
-    return {
-      date,
-      dayName: format(date, 'EEE'),
-      dayNumber: format(date, 'd'),
-      month: format(date, 'MMM')
-    };
-  });
+  // Get unique dates from the show list
+  const uniqueDates = Array.from(
+    new Set(shows.map((show) => show.date))
+  ).map((dateStr) => parseISO(dateStr));
 
   const isDateSelected = (date: Date) => {
     return format(date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
@@ -56,37 +55,36 @@ const DateSelector: React.FC<DateSelectorProps> = ({
                   selected={selectedDate}
                   onSelect={(date) => date && handleDateSelect(date)}
                   initialFocus
-                  disabled={(date) => 
-                    date < new Date(new Date().setHours(0, 0, 0, 0)) || 
-                    date > addDays(new Date(), 30)
+                  disabled={(date) =>
+                    !uniqueDates.some(
+                      (d) => format(d, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+                    )
                   }
                 />
               </PopoverContent>
             </Popover>
           </div>
-          
-          <div className="grid grid-cols-7 gap-2">
-            {quickDates.map((item) => (
+
+          <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 gap-2">
+            {uniqueDates.map((date) => (
               <Button
-                key={format(item.date, 'yyyy-MM-dd')}
-                variant={isDateSelected(item.date) ? "default" : "outline"}
+                key={format(date, 'yyyy-MM-dd')}
+                variant={isDateSelected(date) ? 'default' : 'outline'}
                 className={cn(
-                  "flex flex-col h-auto py-3",
-                  isDateSelected(item.date) ? "border-primary" : ""
+                  'flex flex-col h-auto py-3',
+                  isDateSelected(date) ? 'border-primary' : ''
                 )}
-                onClick={() => handleDateSelect(item.date)}
+                onClick={() => handleDateSelect(date)}
               >
-                <span className="text-xs">{item.dayName}</span>
-                <span className="text-lg font-bold">{item.dayNumber}</span>
-                <span className="text-xs">{item.month}</span>
+                <span className="text-xs">{format(date, 'EEE')}</span>
+                <span className="text-lg font-bold">{format(date, 'd')}</span>
+                <span className="text-xs">{format(date, 'MMM')}</span>
               </Button>
             ))}
           </div>
-          
+
           <div className="flex justify-end mt-4">
-            <Button onClick={() => handleDateSelect(selectedDate)}>
-              Continue
-            </Button>
+            <Button onClick={() => handleDateSelect(selectedDate)}>Continue</Button>
           </div>
         </div>
       </CardContent>

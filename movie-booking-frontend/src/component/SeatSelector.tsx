@@ -66,7 +66,7 @@ interface MovieDetails {
 const SeatSelector = () => {
   const { movieId } = useParams<{ movieId: string }>();
   const navigate = useNavigate();
-  
+
   // State
   const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -86,9 +86,10 @@ const SeatSelector = () => {
   const [isMobileView, setIsMobileView] = useState(false);
   const [isBookingConfirming, setIsBookingConfirming] = useState(false);
 
+
   // Memoize theaters list
-  const theaters = useMemo(() => 
-    Array.from(new Set(shows.map(show => show.theater.name))), 
+  const theaters = useMemo(() =>
+    Array.from(new Set(shows.map(show => show.theater.name))),
     [shows]
   );
 
@@ -107,13 +108,13 @@ const SeatSelector = () => {
         const res = await axios.get<Show[]>(
           `https://movizonebackend.onrender.com/api/shows/movie/${movieId}`
         );
-  
+
         setShows(res.data);
-  
+
         if (res.data.length > 0) {
-          const movie = res.data[0].movie;  
+          const movie = res.data[0].movie;
           setMovieDetails({
-            title: movie.title,
+            title: movie.title || "check seat selector please",
             posterUrl: movie.posterUrl || "https://tse3.mm.bing.net/th?id=OIP.nJ9vpUZxs9Sj3NGhksv3cgHaNK&pid=Api&P=0&h=220",
             genre: movie.genre || "Action",
             description: movie.description || "No description___ available",
@@ -123,41 +124,41 @@ const SeatSelector = () => {
             director: movie.director || "Unknown from seat selector page",
             cast: movie.cast || ["These error from seatselector page"]
           });
-            
-         
+
+
         } else {
           setError("No shows available for this movie.");
         }
       } catch (err) {
-        setError("Failed to load show information. Please try again later.");
+        setError("No show available for these movie.");
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchShows();
   }, [movieId]);
-  
+
 
   // Update available times
   useEffect(() => {
     if (theaters.length > 0 && !selectedTheater) {
       setSelectedTheater(theaters[0]);
     }
-    
+
     const formattedDate = format(selectedDate, 'yyyy-MM-dd');
-    const matchedShows = shows.filter(show => 
-      show.date === formattedDate && 
+    const matchedShows = shows.filter(show =>
+      show.date === formattedDate &&
       (!selectedTheater || show.theater.name === selectedTheater)
     );
-    
-    const times = matchedShows.flatMap(show => 
+
+    const times = matchedShows.flatMap(show =>
       show.time.split(",").map(t => ({
         time: t.trim(),
         showId: show._id
       }))
     );
-    
+
     setAvailableTimes(times);
     setSelectedTime(null);
     setSelectedShowId(null);
@@ -167,7 +168,7 @@ const SeatSelector = () => {
   // Seat generation logic
   const generateSeats = (bookedSeats: string[]): Seat[] => {
     const seats: Seat[] = [];
-    
+
     // Standard seats (rows A-E)
     for (const row of ['A', 'B', 'C', 'D', 'E']) {
       for (let num = 1; num <= 12; num++) {
@@ -182,7 +183,7 @@ const SeatSelector = () => {
         });
       }
     }
-    
+
     // Premium seats (rows F-H)
     for (const row of ['F', 'G', 'H']) {
       for (let num = 1; num <= 12; num++) {
@@ -197,7 +198,7 @@ const SeatSelector = () => {
         });
       }
     }
-    
+
     // VIP seats (row J)
     for (const row of ['J']) {
       for (let num = 1; num <= 8; num++) {
@@ -212,14 +213,14 @@ const SeatSelector = () => {
         });
       }
     }
-    
+
     return seats;
   };
 
   // Fetch seat availability
   const fetchSeatAvailability = useCallback(async () => {
     if (!selectedShowId) return;
-    
+
     setAvailabilityLoading(true);
     try {
       const show = shows.find(s => s._id === selectedShowId);
@@ -256,15 +257,15 @@ const SeatSelector = () => {
 
   const handleSeatClick = useCallback((seat: Seat) => {
     if (seat.isBooked) return;
-    setSelectedSeats(prev => prev.some(s => s.id === seat.id) 
-      ? prev.filter(s => s.id !== seat.id) 
+    setSelectedSeats(prev => prev.some(s => s.id === seat.id)
+      ? prev.filter(s => s.id !== seat.id)
       : [...prev, seat]
     );
   }, []);
 
   const handleConfirmBooking = useCallback(async () => {
     if (!selectedSeats.length) return;
-    
+
     setIsBookingConfirming(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -291,7 +292,7 @@ const SeatSelector = () => {
     const steps = ["date", "theater", "time", "seats"];
     const currentIndex = steps.indexOf(selectedTab);
     const stepIndex = steps.indexOf(step);
-    
+
     if (stepIndex < currentIndex) return "complete";
     if (stepIndex === currentIndex) return "current";
     return "upcoming";
@@ -318,21 +319,21 @@ const SeatSelector = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <MovieBanner 
-        movieDetails={movieDetails} 
-        onShowInfo={() => setShowInfoDialog(true)} 
+      <MovieBanner
+        movieDetails={movieDetails}
+        onShowInfo={() => setShowInfoDialog(true)}
       />
 
       <div className="container mx-auto py-10 px-4">
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-6 text-center">Book Your Tickets</h2>
-          <BookingProgress 
-            steps={["date", "theater", "time", "seats"]} 
-            currentStep={selectedTab} 
-            getStepStatus={getStepStatus} 
+          <BookingProgress
+            steps={["date", "theater", "time", "seats"]}
+            currentStep={selectedTab}
+            getStepStatus={getStepStatus}
           />
         </div>
-      
+
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
           <TabsList className="grid grid-cols-4 w-full max-w-2xl mx-auto">
             <TabsTrigger value="date">
@@ -352,32 +353,36 @@ const SeatSelector = () => {
               Seats
             </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="date" className="mt-6">
-            <DateSelector 
+
+            <DateSelector
               selectedDate={selectedDate}
               isCalendarOpen={isCalendarOpen}
               setIsCalendarOpen={setIsCalendarOpen}
               handleDateSelect={handleDateSelect}
+              shows={shows} // Pass the API result here
             />
+
+
           </TabsContent>
-          
+
           <TabsContent value="theater" className="mt-6">
-            <TheaterSelector 
+            <TheaterSelector
               theaters={theaters}
               selectedTheater={selectedTheater}
               handleTheaterSelect={handleTheaterSelect}
             />
           </TabsContent>
-          
+
           <TabsContent value="time" className="mt-6">
-            <TimeSelector 
+            <TimeSelector
               availableTimes={availableTimes}
               selectedTime={selectedTime}
               handleTimeSelect={handleTimeSelect}
             />
           </TabsContent>
-          
+
           <TabsContent value="seats" className="mt-6">
             <Card className="max-w-4xl mx-auto shadow-lg border-primary/5">
               <CardHeader className="bg-muted/30">
@@ -395,7 +400,7 @@ const SeatSelector = () => {
                   <div className="h-10 bg-gradient-to-b from-primary/30 to-transparent w-2/3 mx-auto rounded-t"></div>
                   <div className="text-muted-foreground text-sm font-medium">SCREEN</div>
                 </div>
-                
+
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   <div className="lg:col-span-3">
                     {availabilityLoading ? (
@@ -419,8 +424,8 @@ const SeatSelector = () => {
                       />
                     )}
                   </div>
-                  
-                  <BookingSummary 
+
+                  <BookingSummary
                     movieDetails={movieDetails}
                     selectedDate={selectedDate}
                     selectedTime={selectedTime}
@@ -430,7 +435,7 @@ const SeatSelector = () => {
                     handleConfirmBooking={handleConfirmBooking}
                   />
                 </div>
-                
+
                 <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/10 rounded-lg border">
                   <div className="flex items-center gap-2">
                     <div className="w-5 h-5 rounded-sm bg-blue-100 border border-blue-200"></div>
@@ -455,8 +460,8 @@ const SeatSelector = () => {
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back
                 </Button>
-                <Button 
-                  onClick={handleConfirmBooking} 
+                <Button
+                  onClick={handleConfirmBooking}
                   disabled={selectedSeats.length === 0 || isBookingConfirming}
                 >
                   {isBookingConfirming ? (
@@ -476,8 +481,8 @@ const SeatSelector = () => {
           </TabsContent>
         </Tabs>
       </div>
-      
-      <MovieDetailsDialog 
+
+      <MovieDetailsDialog
         open={showInfoDialog}
         onOpenChange={setShowInfoDialog}
         movieDetails={movieDetails}

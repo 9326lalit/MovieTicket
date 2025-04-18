@@ -7,17 +7,15 @@ import { InfoIcon } from 'lucide-react';
 import { Button } from '../components/ui/button';
 
 interface MovieDetails {
-  title?: string;
+  title: string;
   posterUrl: string;
   genre: string;
   description: string;
-  rating?: number;
-  showTime?: string;
-  ticketPrice?: number;
-  releaseDate?: string;
-  duration?: string;
-  director?: string;
-  cast?: string[];
+  releaseDate: string; // ISO format
+  duration?: string | number;
+  rating: number;      // e.g. 7.5
+  director: string;
+  cast: string[];
 }
 
 interface MovieBannerProps {
@@ -48,6 +46,7 @@ const MovieBanner: React.FC<MovieBannerProps> = ({ movieDetails, onShowInfo }) =
         <div className="flex-1">
           <h1 className="text-2xl md:text-3xl font-bold mb-2">{movieDetails.title}</h1>
           <h1 className="text-2xl md:text-3xl font-bold mb-2">{movieDetails.description}</h1>
+
 
           {movieDetails.genre && (
             <div className="text-sm text-muted-foreground mb-1">{movieDetails.genre}</div>
