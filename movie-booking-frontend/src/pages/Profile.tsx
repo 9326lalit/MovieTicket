@@ -32,37 +32,44 @@ const Profile: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        await fetchUserBookings(currentUser.uid);
       } else {
         navigate("/auth");
       }
       setLoading(false);
     });
-
+  
     return () => unsubscribe();
   }, [navigate]);
-
+  
+  // Fetch bookings only when user is set and bookings not yet fetched
+  useEffect(() => {
+    if (user) {
+      fetchUserBookings(user.uid);
+    }
+  }, [user]);
+  
   const fetchUserBookings = async (userId: string) => {
     try {
       const bookingsRef = collection(db, "bookings");
       const q = query(bookingsRef, where("userId", "==", userId));
       const querySnapshot = await getDocs(q);
       
-      const bookingsData: Booking[] = [];
-      querySnapshot.forEach((doc) => {
-        bookingsData.push({ id: doc.id, ...doc.data() } as Booking);
-      });
-      
+      const bookingsData: Booking[] = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as Omit<Booking, "id">),
+      }));
+  
       setBookings(bookingsData);
     } catch (error) {
       console.error("Error fetching bookings:", error);
     }
   };
-
+  
   const handleLogout = async () => {
     try {
       await signOut(auth);

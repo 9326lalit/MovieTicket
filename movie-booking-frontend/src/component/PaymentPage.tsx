@@ -1,13 +1,46 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { Button, Input,  Radio, Label } from "shadcn-react";
+import { RadioGroup } from "shadcn-react/ui";
 
 const PaymentPage: React.FC = () => {
   const location = useLocation();
   const { movie, date, time, seats, totalPrice } = location.state || {};
 
+  const [paymentMethod, setPaymentMethod] = useState("credit");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [errors, setErrors] = useState<any>({});
+
   if (!movie || !date || !time || !seats) {
     return <div>No booking details available.</div>;
   }
+
+  const handlePaymentSubmit = () => {
+    // Basic validation
+    const newErrors: any = {};
+    if (!cardNumber || cardNumber.length < 16) newErrors.cardNumber = "Card number is invalid";
+    if (!expiryDate) newErrors.expiryDate = "Expiry date is required";
+    if (!cvv || cvv.length !== 3) newErrors.cvv = "CVV is invalid";
+    if (!fullName) newErrors.fullName = "Full name is required";
+    if (!email || !/\S+@\S+\.\S+/.test(email)) newErrors.email = "Invalid email address";
+    if (!phone || phone.length < 10) newErrors.phone = "Phone number is invalid";
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      setIsProcessing(true);
+      // Simulate payment processing
+      setTimeout(() => {
+        setIsProcessing(false);
+        alert("Payment Successful!");
+      }, 2000);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-800 flex justify-center items-center">
@@ -58,62 +91,83 @@ const PaymentPage: React.FC = () => {
 
           {/* Payment Type */}
           <div className="space-y-3 mb-6">
-            <label className="flex items-center space-x-3">
-              <input
-                type="radio"
-                name="payment-method"
-                className="form-radio text-blue-600"
-                defaultChecked
-              />
-              <span className="text-gray-700 font-medium">Credit / Debit Card</span>
-            </label>
+            <RadioGroup value={paymentMethod} onChange={setPaymentMethod}>
+              <div className="flex items-center space-x-3">
+                <Radio id="credit-debit-card" name="payment-method" value="credit" />
+                <Label htmlFor="credit-debit-card" className="text-gray-700 font-medium">
+                  Credit / Debit Card
+                </Label>
+              </div>
+            </RadioGroup>
           </div>
 
           {/* Card Info */}
           <div className="space-y-4">
-            <input
+            <Input
               type="text"
+              value={cardNumber}
+              onChange={(e) => setCardNumber(e.target.value)}
               placeholder="Card Number"
               className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             />
+            {errors.cardNumber && <p className="text-red-500 text-sm">{errors.cardNumber}</p>}
             <div className="flex space-x-4">
-              <input
+              <Input
                 type="text"
+                value={expiryDate}
+                onChange={(e) => setExpiryDate(e.target.value)}
                 placeholder="MM/YY"
                 className="w-1/2 px-4 py-3 border border-gray-300 rounded-md"
               />
-              <input
+              {errors.expiryDate && <p className="text-red-500 text-sm">{errors.expiryDate}</p>}
+              <Input
                 type="text"
+                value={cvv}
+                onChange={(e) => setCvv(e.target.value)}
                 placeholder="CVV"
                 className="w-1/2 px-4 py-3 border border-gray-300 rounded-md"
               />
+              {errors.cvv && <p className="text-red-500 text-sm">{errors.cvv}</p>}
             </div>
           </div>
 
           {/* Billing Info */}
           <div className="mt-6 space-y-3">
-            <input
+            <Input
               type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               placeholder="Full Name"
               className="w-full px-4 py-3 border border-gray-300 rounded-md"
             />
-            <input
+            {errors.fullName && <p className="text-red-500 text-sm">{errors.fullName}</p>}
+            <Input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
               className="w-full px-4 py-3 border border-gray-300 rounded-md"
             />
-            <input
+            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+            <Input
               type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               placeholder="Phone"
               className="w-full px-4 py-3 border border-gray-300 rounded-md"
             />
+            {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
           </div>
 
           {/* Confirm Button */}
           <div className="mt-8">
-            <button className="w-full py-3 bg-green-600 hover:bg-green-700 text-white text-lg font-semibold rounded-md transition-all duration-300">
-              Pay ₹{totalPrice} & Confirm Booking
-            </button>
+            <Button
+              onClick={handlePaymentSubmit}
+              disabled={isProcessing}
+              className={`w-full py-3 ${isProcessing ? 'bg-gray-500' : 'bg-green-600 hover:bg-green-700'} text-white text-lg font-semibold rounded-md transition-all duration-300`}
+            >
+              {isProcessing ? "Processing..." : `Pay ₹${totalPrice} & Confirm Booking`}
+            </Button>
           </div>
         </div>
       </div>
@@ -122,4 +176,3 @@ const PaymentPage: React.FC = () => {
 };
 
 export default PaymentPage;
- 
