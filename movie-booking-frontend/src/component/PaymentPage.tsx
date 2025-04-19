@@ -1,14 +1,23 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Button, Input, Radio, Label } from "shadcn-react";
-import { RadioGroup } from "shadcn-react/ui";
+
+
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import socket from "../socket";
+
+// Import shadcn components
+import {Button} from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { RadioGroup, RadioGroupItem } from "../../components/ui/radio-group";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
+import { Separator } from "../components/ui/separator";
+import { Badge } from "../components/ui/badge";
 
 const PaymentPage: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { movie, date, time, seats, totalPrice } = location.state || {};
 
   const [paymentMethod, setPaymentMethod] = useState("credit");
@@ -22,8 +31,29 @@ const PaymentPage: React.FC = () => {
   const [errors, setErrors] = useState<any>({});
 
   if (!movie || !date || !time || !seats) {
-    return <div>No booking details available.</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-96">
+          <CardHeader>
+            <CardTitle>Error</CardTitle>
+            <CardDescription>No booking details available</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p>Please return to the booking page and select a movie, date, time, and seats.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
+
+  useEffect(() => {
+    socket.on("booking-confirmed", (data) => {
+      console.log("Received real-time booking data:", data);
+      toast.success("New booking confirmed!");
+    });
+
+    return () => socket.off("booking-confirmed");
+  }, []);
 
   const handlePaymentSubmit = async () => {
     const newErrors: any = {};
@@ -89,79 +119,263 @@ const PaymentPage: React.FC = () => {
     }
   };
 
+  // Format date to be more readable
+  const formattedDate = new Date(date).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-800 flex justify-center items-center">
-      <div className="container mx-auto px-4 py-6 grid grid-cols-1 md:grid-cols-2 gap-8 bg-white shadow-xl rounded-2xl overflow-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-900 py-12">
+      <div className="container mx-auto px-4">
+        <h1 className="text-3xl font-bold text-center mb-8">Complete Your Booking</h1>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Left Column - Booking Summary */}
+          <div className="lg:col-span-5">
+            <Card className="overflow-hidden">
+              <CardHeader className="bg-slate-900 text-white">
+                <CardTitle className="flex items-center">
+                  <span className="mr-2">🎟️</span> Booking Summary
+                </CardTitle>
+                <CardDescription className="text-slate-300">
+                  Review your movie tickets
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent className="pt-6">
+                <div className="flex space-x-4 items-start mb-6">
+                  <img 
+                    src={movie.posterUrl} 
+                    alt={movie.title} 
+                    className="w-24 h-36 object-cover rounded-lg shadow-sm" 
+                  />
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900">{movie.title}</h3>
+                    <div className="flex items-center mt-1">
+                      <span className="text-amber-500 mr-1">⭐</span>
+                      <span className="text-sm font-medium">{movie.rating}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <Badge variant="outline" className="text-xs">
+                        {movie.language}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {movie.genre}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+                
+                <Separator className="my-4" />
+                
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center">
+                      <span className="text-slate-500 mr-2">📅</span>
+                      <span className="text-sm font-medium">Date</span>
+                    </div>
+                    <span className="text-sm">{formattedDate}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center">
+                      <span className="text-slate-500 mr-2">🕒</span>
+                      <span className="text-sm font-medium">Time</span>
+                    </div>
+                    <span className="text-sm">{time}</span>
+                  </div>
+                  
+                  <div>
+                    <div className="flex items-center mb-2">
+                      <span className="text-slate-500 mr-2">💺</span>
+                      <span className="text-sm font-medium">Seats</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {seats.map(seat => (
+  <p key={seat.id}>
+    Row: {seat.row}, Number: {seat.number}, Type: {seat.type}, Price: ₹{seat.price}
+  </p>
+))}
 
-        {/* Left Column - Booking Summary */}
-        <div className="p-6 bg-gradient-to-br from-white to-gray-100 rounded-xl border border-gray-200 shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">🎟️ Booking Summary</h2>
-          <div className="flex space-x-4 items-center mb-6">
-            <img src={movie.posterUrl} alt={movie.title} className="w-24 h-36 object-cover rounded-lg shadow-sm" />
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">{movie.title}</h3>
-              <p className="text-sm text-gray-600 mt-1">⭐ {movie.rating}</p>
-              <p className="text-sm text-gray-500 mt-2">{movie.language} | {movie.genre}</p>
-            </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <Separator className="my-4" />
+                
+                <div className="flex justify-between items-center pt-2">
+                  <span className="font-semibold text-slate-900">Total Price:</span>
+                  <span className="text-lg font-bold text-green-600">${totalPrice}</span>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-          <div className="space-y-4 text-sm text-gray-700 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-            <div className="flex justify-between"><span className="font-medium">📅 Date:</span><span>{new Date(date).toLocaleDateString()}</span></div>
-            <div className="flex justify-between"><span className="font-medium">🕒 Time:</span><span>{time}</span></div>
-            <div className="flex justify-between"><span className="font-medium">💺 Seats:</span><span>{seats.join(",")}</span></div>
-            <div className="border-t pt-3 flex justify-between text-lg font-semibold text-gray-900">
-              <span>Total Price:</span><span>${totalPrice}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column - Payment Form */}
-        <div className="p-6 bg-gray-50 rounded-xl shadow-md border border-gray-200">
-          <h3 className="text-2xl font-semibold text-gray-800 mb-4">💳 Payment Options</h3>
-
-          <div className="space-y-3 mb-6">
-            <RadioGroup value={paymentMethod} onChange={setPaymentMethod}>
-              <div className="flex items-center space-x-3">
-                <Radio id="credit-debit-card" name="payment-method" value="credit" />
-                <Label htmlFor="credit-debit-card" className="text-gray-700 font-medium">
-                  Credit / Debit Card
-                </Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          <div className="space-y-4">
-            <Input type="text" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} placeholder="Card Number" className="w-full px-4 py-3 border border-gray-300 rounded-md" />
-            {errors.cardNumber && <p className="text-red-500 text-sm">{errors.cardNumber}</p>}
-            <div className="flex space-x-4">
-              <Input type="text" value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} placeholder="MM/YY" className="w-1/2 px-4 py-3 border border-gray-300 rounded-md" />
-              <Input type="text" value={cvv} onChange={(e) => setCvv(e.target.value)} placeholder="CVV" className="w-1/2 px-4 py-3 border border-gray-300 rounded-md" />
-            </div>
-            {errors.expiryDate && <p className="text-red-500 text-sm">{errors.expiryDate}</p>}
-            {errors.cvv && <p className="text-red-500 text-sm">{errors.cvv}</p>}
-          </div>
-
-          <div className="mt-6 space-y-3">
-            <Input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full Name" className="w-full px-4 py-3 border border-gray-300 rounded-md" />
-            {errors.fullName && <p className="text-red-500 text-sm">{errors.fullName}</p>}
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full px-4 py-3 border border-gray-300 rounded-md" />
-            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-            <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" className="w-full px-4 py-3 border border-gray-300 rounded-md" />
-            {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
-          </div>
-
-          <div className="mt-8">
-            <Button
-              onClick={handlePaymentSubmit}
-              disabled={isProcessing}
-              className={`w-full py-3 ${isProcessing ? 'bg-gray-500' : 'bg-green-600 hover:bg-green-700'} text-white text-lg font-semibold rounded-md transition-all duration-300`}
-            >
-              {isProcessing ? "Processing..." : `Pay $${totalPrice} & Confirm Booking`}
-            </Button>
+          
+          {/* Right Column - Payment Form */}
+          <div className="lg:col-span-7">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <span className="mr-2">💳</span> Payment Details
+                </CardTitle>
+                <CardDescription>
+                  Complete your booking by providing payment information
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent className="space-y-6">
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <Label>Payment Method</Label>
+                    <RadioGroup
+                      value={paymentMethod}
+                      onValueChange={setPaymentMethod}
+                      className="flex flex-col space-y-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="credit" id="credit-card" />
+                        <Label htmlFor="credit-card" className="font-normal">Credit / Debit Card</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="wallet" id="digital-wallet" disabled />
+                        <Label htmlFor="digital-wallet" className="font-normal text-slate-400">Digital Wallet (Coming soon)</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div>
+                
+                <Separator />
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="card-number">Card Number</Label>
+                    <Input
+                      id="card-number"
+                      type="text"
+                      value={cardNumber}
+                      onChange={(e) => setCardNumber(e.target.value)}
+                      placeholder="1234 5678 9012 3456"
+                      className={errors.cardNumber ? "border-red-500" : ""}
+                    />
+                    {errors.cardNumber && (
+                      <p className="text-red-500 text-sm">{errors.cardNumber}</p>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="expiry-date">Expiry Date</Label>
+                      <Input
+                        id="expiry-date"
+                        type="text"
+                        value={expiryDate}
+                        onChange={(e) => setExpiryDate(e.target.value)}
+                        placeholder="MM/YY"
+                        className={errors.expiryDate ? "border-red-500" : ""}
+                      />
+                      {errors.expiryDate && (
+                        <p className="text-red-500 text-sm">{errors.expiryDate}</p>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="cvv">CVV</Label>
+                      <Input
+                        id="cvv"
+                        type="text"
+                        value={cvv}
+                        onChange={(e) => setCvv(e.target.value)}
+                        placeholder="123"
+                        className={errors.cvv ? "border-red-500" : ""}
+                      />
+                      {errors.cvv && (
+                        <p className="text-red-500 text-sm">{errors.cvv}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                <Separator />
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="full-name">Cardholder Name</Label>
+                    <Input
+                      id="full-name"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="John Doe"
+                      className={errors.fullName ? "border-red-500" : ""}
+                    />
+                    {errors.fullName && (
+                      <p className="text-red-500 text-sm">{errors.fullName}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      className={errors.email ? "border-red-500" : ""}
+                    />
+                    {errors.email && (
+                      <p className="text-red-500 text-sm">{errors.email}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="(123) 456-7890"
+                      className={errors.phone ? "border-red-500" : ""}
+                    />
+                    {errors.phone && (
+                      <p className="text-red-500 text-sm">{errors.phone}</p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+              
+              <CardFooter className="flex flex-col space-y-4">
+                <Button
+                  onClick={handlePaymentSubmit}
+                  disabled={isProcessing}
+                  className="w-full py-6"
+                  size="lg"
+                >
+                  {isProcessing ? (
+                    <span className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Processing...
+                    </span>
+                  ) : (
+                    <span>Pay ${totalPrice} & Confirm Booking</span>
+                  )}
+                </Button>
+                <p className="text-xs text-center text-slate-500">
+                  By proceeding, you agree to our terms of service and privacy policy
+                </p>
+              </CardFooter>
+            </Card>
           </div>
         </div>
       </div>
-
-      {/* Toast Container */}
+      
       <ToastContainer />
     </div>
   );
