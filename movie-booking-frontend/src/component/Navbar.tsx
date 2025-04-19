@@ -207,7 +207,7 @@ const Navbar = ({ theme, setTheme }) => {
                       </Link>
                     </NavigationMenuLink>
                     <NavigationMenuLink asChild>
-                      <Link to="/movies/coming-soon" className="flex items-start space-x-2 rounded-md p-3 hover:bg-accent">
+                      <Link to="/movies/comingsoon" className="flex items-start space-x-2 rounded-md p-3 hover:bg-accent">
                         <div className="bg-primary/10 p-1 rounded-md">
                           <Clock className="h-5 w-5 text-primary" />
                         </div>
@@ -399,7 +399,7 @@ const Navbar = ({ theme, setTheme }) => {
                           <Ticket className="mr-2 h-4 w-4" />
                           Now Playing
                         </Link>
-                        <Link to="/movies/coming-soon" className="flex items-center px-3 py-2 hover:bg-accent rounded-md">
+                        <Link to="/movies/comingsoon" className="flex items-center px-3 py-2 hover:bg-accent rounded-md">
                           <Clock className="mr-2 h-4 w-4" />
                           Coming Soon
                         </Link>

@@ -12,6 +12,7 @@ import Dashboard from './admin/Dashborad.tsx';
 import DashboardLayout from './admin/DashboardLayout.tsx';
 import ManageShows from './admin/ManageShows.tsx';
 import CreateTheater from './admin/CreateTheater.tsx';
+import CommingSoon from './pages/comingsoon.tsx';
 // import CommingSoon from './pages/comingsoon.tsx';
 
 
@@ -22,6 +23,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/movies/comingsoon" element={<CommingSoon />} />
+
        
 
         <Route path="/payment" element={<PaymentPage />} />
