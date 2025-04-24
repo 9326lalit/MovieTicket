@@ -1,6 +1,3 @@
-
-
-
 // SeatLayout.tsx
 import React from 'react';
 import { cn } from '../lib/utils';
@@ -60,6 +57,7 @@ const SeatLayout: React.FC<SeatLayoutProps> = ({ seats, selectedSeats, handleSea
       {rows.map((row) => (
         <div key={row} className="flex items-center">
           <div className="w-6 text-center font-medium text-sm mr-3">{row}</div>
+          <h3>Seat Layout</h3>
           <div className="flex space-x-2">
             {seatsByRow[row].sort((a, b) => a.number - b.number).map((seat) => (
               <button

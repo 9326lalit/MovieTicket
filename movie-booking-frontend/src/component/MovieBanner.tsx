@@ -27,7 +27,7 @@ const MovieBanner: React.FC<MovieBannerProps> = ({ movieDetails, onShowInfo }) =
   if (!movieDetails) return null;
 
   return (
-    <div className="w-full bg-gradient-to-b from-primary/10 to-background relative">
+    <div className="ml-20 w-full bg-gradient-to-b from-primary/10 to-background relative">
       <div className="container mx-auto px-4 py-6 flex flex-col md:flex-row items-center gap-6">
         <div className="w-36 h-52 rounded-md overflow-hidden shadow-lg flex-shrink-0">
           {movieDetails.posterUrl ? (

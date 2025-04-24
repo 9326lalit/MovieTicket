@@ -1,12 +1,13 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { format } from 'date-fns';
-import { CalendarIcon, Clock, MapPin, TicketIcon, ArrowLeft } from 'lucide-react';
+import { format, isAfter, startOfDay, parseISO } from 'date-fns';
+import { CalendarIcon, Clock, MapPin, TicketIcon, ArrowLeft, AlertCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Skeleton } from '../../components/ui/skeleton';
+import { Alert, AlertTitle, AlertDescription } from '../../components/ui/alert';
 
 // Components
 import MovieBanner from "./MovieBanner";
@@ -46,7 +47,6 @@ interface Show {
     rating: number;
     director: string;
     cast: string[];
-
   };
 }
 
@@ -62,7 +62,6 @@ interface MovieDetails {
   cast: string[];
 }
 
-
 const SeatSelector = () => {
   const { movieId } = useParams<{ movieId: string }>();
   const navigate = useNavigate();
@@ -72,6 +71,7 @@ const SeatSelector = () => {
   const [loading, setLoading] = useState(true);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [shows, setShows] = useState<Show[]>([]);
+  const [filteredShows, setFilteredShows] = useState<Show[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTheater, setSelectedTheater] = useState<string | null>(null);
   const [availableTimes, setAvailableTimes] = useState<Array<{ time: string; showId: string }>>([]);
@@ -81,16 +81,34 @@ const SeatSelector = () => {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [seats, setSeats] = useState<Seat[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [noFutureShows, setNoFutureShows] = useState(false);
   const [selectedTab, setSelectedTab] = useState("date");
   const [showInfoDialog, setShowInfoDialog] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [isBookingConfirming, setIsBookingConfirming] = useState(false);
 
+  // Filter out past dates
+  useEffect(() => {
+    if (shows.length > 0) {
+      const today = startOfDay(new Date());
+      const futureShows = shows.filter(show => isAfter(parseISO(show.date), today));
+      
+      setFilteredShows(futureShows);
+      
+      if (futureShows.length === 0) {
+        setNoFutureShows(true);
+      } else {
+        // Set the default date to the earliest future date available
+        const earliestDate = new Date(Math.min(...futureShows.map(show => new Date(show.date).getTime())));
+        setSelectedDate(earliestDate);
+      }
+    }
+  }, [shows]);
 
-  // Memoize theaters list
+  // Memoize theaters list from filtered shows
   const theaters = useMemo(() =>
-    Array.from(new Set(shows.map(show => show.theater.name))),
-    [shows]
+    Array.from(new Set(filteredShows.map(show => show.theater.name))),
+    [filteredShows]
   );
 
   // Handle responsive layout
@@ -114,23 +132,21 @@ const SeatSelector = () => {
         if (res.data.length > 0) {
           const movie = res.data[0].movie;
           setMovieDetails({
-            title: movie.title || "check seat selector please",
+            title: movie.title || "Untitled Movie",
             posterUrl: movie.posterUrl || "https://tse3.mm.bing.net/th?id=OIP.nJ9vpUZxs9Sj3NGhksv3cgHaNK&pid=Api&P=0&h=220",
             genre: movie.genre || "Action",
-            description: movie.description || "No description___ available",
-            releaseDate: movie.releaseDate || "error check in seatSelector please",
-            duration: movie.duration || "njhjh",
+            description: movie.description || "No description available",
+            releaseDate: movie.releaseDate || new Date().toISOString(),
+            duration: movie.duration || "120 min",
             rating: movie.rating || 7.5,
-            director: movie.director || "Unknown from seat selector page",
-            cast: movie.cast || ["These error from seatselector page"]
+            director: movie.director || "Unknown Director",
+            cast: movie.cast || ["Cast information unavailable"]
           });
-
-
         } else {
           setError("No shows available for this movie.");
         }
       } catch (err) {
-        setError("No show available for these movie.");
+        setError("Failed to load shows for this movie.");
       } finally {
         setLoading(false);
       }
@@ -139,15 +155,14 @@ const SeatSelector = () => {
     fetchShows();
   }, [movieId]);
 
-
-  // Update available times
+  // Update available times based on filtered shows
   useEffect(() => {
     if (theaters.length > 0 && !selectedTheater) {
       setSelectedTheater(theaters[0]);
     }
 
     const formattedDate = format(selectedDate, 'yyyy-MM-dd');
-    const matchedShows = shows.filter(show =>
+    const matchedShows = filteredShows.filter(show =>
       show.date === formattedDate &&
       (!selectedTheater || show.theater.name === selectedTheater)
     );
@@ -163,7 +178,7 @@ const SeatSelector = () => {
     setSelectedTime(null);
     setSelectedShowId(null);
     setSelectedSeats([]);
-  }, [selectedDate, selectedTheater, shows, theaters]);
+  }, [selectedDate, selectedTheater, filteredShows, theaters]);
 
   // Seat generation logic
   const generateSeats = (bookedSeats: string[]): Seat[] => {
@@ -317,12 +332,41 @@ const SeatSelector = () => {
     );
   }
 
+  if (noFutureShows) {
+    return (
+      <div className="container mx-auto py-10 px-4">
+        {movieDetails && (
+          <MovieBanner
+            movieDetails={movieDetails}
+            onShowInfo={() => setShowInfoDialog(true)}
+          />
+        )}
+        
+        <Alert className="mt-8 max-w-2xl mx-auto">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>No upcoming shows</AlertTitle>
+          <AlertDescription>
+            There are no future shows scheduled for this movie. Please check back later or explore other movies.
+          </AlertDescription>
+        </Alert>
+        
+        <div className="flex justify-center mt-6">
+          <Button onClick={() => navigate("/movies")}>
+            Browse Other Movies
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <MovieBanner
-        movieDetails={movieDetails}
-        onShowInfo={() => setShowInfoDialog(true)}
-      />
+      {movieDetails && (
+        <MovieBanner
+          movieDetails={movieDetails}
+          onShowInfo={() => setShowInfoDialog(true)}
+        />
+      )}
 
       <div className="container mx-auto py-10 px-4">
         <div className="mb-8">
@@ -355,16 +399,13 @@ const SeatSelector = () => {
           </TabsList>
 
           <TabsContent value="date" className="mt-6">
-
             <DateSelector
               selectedDate={selectedDate}
               isCalendarOpen={isCalendarOpen}
               setIsCalendarOpen={setIsCalendarOpen}
               handleDateSelect={handleDateSelect}
-              shows={shows} // Pass the API result here
+              shows={filteredShows} // Pass filtered shows that only contain future dates
             />
-
-
           </TabsContent>
 
           <TabsContent value="theater" className="mt-6">
@@ -482,11 +523,13 @@ const SeatSelector = () => {
         </Tabs>
       </div>
 
-      <MovieDetailsDialog
-        open={showInfoDialog}
-        onOpenChange={setShowInfoDialog}
-        movieDetails={movieDetails}
-      />
+      {movieDetails && (
+        <MovieDetailsDialog
+          open={showInfoDialog}
+          onOpenChange={setShowInfoDialog}
+          movieDetails={movieDetails}
+        />
+      )}
     </div>
   );
 };
