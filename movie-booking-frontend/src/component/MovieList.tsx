@@ -8,7 +8,7 @@ import { Button } from "../components/ui/button";
 interface Movie {
   _id?: string;
   title: string;
-  description: string;
+  description: String;
   posterUrl?: string;
   rating: number;
   showTime: string;

@@ -1,21 +1,15 @@
-
-
-
-// MovieBanner.tsx
 import React from 'react';
 import { InfoIcon } from 'lucide-react';
 import { Button } from '../components/ui/button';
 
 interface MovieDetails {
   title: string;
-  posterUrl: string;
+  posterUrl?: string;
   genre: string;
   description: string;
   releaseDate: string; // ISO format
   duration?: string | number;
-  rating: number;      // e.g. 7.5
-  director: string;
-  cast: string[];
+  rating: number;
 }
 
 interface MovieBannerProps {
@@ -26,50 +20,59 @@ interface MovieBannerProps {
 const MovieBanner: React.FC<MovieBannerProps> = ({ movieDetails, onShowInfo }) => {
   if (!movieDetails) return null;
 
+  const {
+    title,
+    posterUrl,
+    genre,
+    description,
+    releaseDate,
+    duration,
+    rating,
+  } = movieDetails;
+
   return (
-    <div className="ml-20 w-full bg-gradient-to-b from-primary/10 to-background relative">
-      <div className="container mx-auto px-4 py-6 flex flex-col md:flex-row items-center gap-6">
-        <div className="w-36 h-52 rounded-md overflow-hidden shadow-lg flex-shrink-0">
-          {movieDetails.posterUrl ? (
-            <img 
-              src={movieDetails.posterUrl || "https://tse3.mm.bing.net/th?id=OIP.nJ9vpUZxs9Sj3NGhksv3cgHaNK&pid=Api&P=0&h=220"} 
-              alt={movieDetails.title || "Moviesss poster"} 
+    <section className="w-full bg-gradient-to-b from-primary/10 to-background py-6">
+      <div className="container mx-auto px-4 flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+        
+        {/* Movie Poster */}
+        <div className="w-36 h-52 sm:w-40 sm:h-60 rounded-md overflow-hidden shadow-md border bg-muted flex-shrink-0">
+          {posterUrl ? (
+            <img
+              src={posterUrl}
+              alt={`${title} Poster`}
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center">
-              <span className="text-muted-foreground">No poster</span>
+            <div className="w-full h-full flex items-center justify-center text-sm text-muted-foreground">
+              No poster
             </div>
           )}
         </div>
-        
-        <div className="flex-1">
-          <h1 className="text-2xl md:text-3xl font-bold mb-2">{movieDetails.title}</h1>
-          <h1 className="text-2xl md:text-3xl font-bold mb-2">{movieDetails.description}</h1>
 
+        {/* Movie Details */}
+        <div className="flex-1 space-y-3 text-center sm:text-left">
+          <h2 className="text-2xl font-semibold text-foreground">{title}</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
 
-          {movieDetails.genre && (
-            <div className="text-sm text-muted-foreground mb-1">{movieDetails.genre}</div>
-          )}
-          {movieDetails.director && (
-            <div className="text-sm mb-1"><span className="font-medium">Director:</span> {movieDetails.director}</div>
-          )}
-          {movieDetails.cast && movieDetails.cast.length > 0 && (
-            <div className="text-sm"><span className="font-medium">Cast:</span> {movieDetails.cast.join(', ')}</div>
-          )}
-          
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="mt-4 text-primary" 
+          <div className="text-sm text-foreground space-y-1">
+            <div><strong>Genre:</strong> {genre}</div>
+            <div><strong>Release:</strong> {new Date(releaseDate).toLocaleDateString()}</div>
+            {duration && <div><strong>Duration:</strong> {duration} mins</div>}
+            <div><strong>Rating:</strong> {rating}/10</div>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-3 text-primary border-primary"
             onClick={onShowInfo}
           >
-            <InfoIcon className="h-4 w-4 mr-1" />
-            Movie Details
+            <InfoIcon className="h-4 w-4 mr-2" />
+            More Details
           </Button>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
