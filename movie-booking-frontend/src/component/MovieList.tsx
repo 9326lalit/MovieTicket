@@ -73,7 +73,7 @@ const MovieList: React.FC = () => {
         </div>
       ) : (
         <div className="text-center text-muted-foreground">
-          No movies available in this category.
+          Movies are loading .....
         </div>
       )}
     </div>

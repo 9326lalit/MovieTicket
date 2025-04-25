@@ -1,78 +1,125 @@
-import React from 'react';
-import { InfoIcon } from 'lucide-react';
+import { Clock, Calendar, Star, Info } from 'lucide-react';
 import { Button } from '../components/ui/button';
-
-interface MovieDetails {
-  title: string;
-  posterUrl?: string;
-  genre: string;
-  description: string;
-  releaseDate: string; // ISO format
-  duration?: string | number;
-  rating: number;
-}
+import { Badge } from '../components/ui/badge';
 
 interface MovieBannerProps {
-  movieDetails: MovieDetails | null;
+  movieDetails: {
+    title: string;
+    posterUrl: string;
+    genre?: string;
+    duration?: string | number;
+    releaseDate?: string;
+    rating?: number;
+    director?: string;
+  };
   onShowInfo: () => void;
 }
 
-const MovieBanner: React.FC<MovieBannerProps> = ({ movieDetails, onShowInfo }) => {
-  if (!movieDetails) return null;
+const MovieBanner = ({ movieDetails, onShowInfo }: MovieBannerProps) => {
+  // Format release date
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (e) {
+      return 'Date unavailable';
+    }
+  };
 
-  const {
-    title,
-    posterUrl,
-    genre,
-    description,
-    releaseDate,
-    duration,
-    rating,
-  } = movieDetails;
+  // Format duration
+  const formatDuration = (duration: string | number | undefined) => {
+    if (!duration) return 'Duration N/A';
+    
+    if (typeof duration === 'number') {
+      const hours = Math.floor(duration / 60);
+      const minutes = duration % 60;
+      return `${hours}h ${minutes}m`;
+    }
+    
+    return duration;
+  };
 
   return (
-    <section className="w-full bg-gradient-to-b from-primary/10 to-background py-6">
-      <div className="container mx-auto px-4 flex flex-col sm:flex-row gap-6 items-center sm:items-start">
-        
-        {/* Movie Poster */}
-        <div className="w-36 h-52 sm:w-40 sm:h-60 rounded-md overflow-hidden shadow-md border bg-muted flex-shrink-0">
-          {posterUrl ? (
-            <img
-              src={posterUrl}
-              alt={`${title} Poster`}
-              className="w-full h-full object-cover"
+    <div className="relative">
+      {/* Background gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-background" />
+      
+      {/* Background image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-30" 
+        style={{ 
+          backgroundImage: `url(${movieDetails.posterUrl})`,
+          backgroundPosition: 'center 20%',
+          filter: 'blur(8px)'
+        }}
+      />
+      
+      <div className="container mx-auto relative z-10 px-4 pt-16 pb-8">
+        <div className="flex flex-col md:flex-row items-start gap-8">
+          {/* Movie poster */}
+          <div className="w-full md:w-64 overflow-hidden rounded-lg shadow-xl">
+            <img 
+              src={movieDetails.posterUrl} 
+              alt={movieDetails.title}
+              className="w-full h-auto object-cover"
             />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-sm text-muted-foreground">
-              No poster
-            </div>
-          )}
-        </div>
-
-        {/* Movie Details */}
-        <div className="flex-1 space-y-3 text-center sm:text-left">
-          <h2 className="text-2xl font-semibold text-foreground">{title}</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
-
-          <div className="text-sm text-foreground space-y-1">
-            <div><strong>Genre:</strong> {genre}</div>
-            <div><strong>Release:</strong> {new Date(releaseDate).toLocaleDateString()}</div>
-            {duration && <div><strong>Duration:</strong> {duration} mins</div>}
-            <div><strong>Rating:</strong> {rating}/10</div>
           </div>
-
-          <Button
-            variant="outline"
-            size="sm"
-            className="mt-3 text-primary border-primary"
-            onClick={onShowInfo}
-          >
-            <InfoIcon className="h-4 w-4 mr-2" />
-            More Details
-          </Button>
+          
+          {/* Movie info */}
+          <div className="flex-1">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">{movieDetails.title}</h1>
+            
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              {movieDetails.rating && (
+                <Badge variant="outline" className="flex items-center gap-1 border-amber-400/30 bg-amber-400/10">
+                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                  <span className="text-amber-400 font-medium">{movieDetails.rating.toFixed(1)}</span>
+                </Badge>
+              )}
+              
+              {/* {movieDetails.genre && (
+                <Badge variant="outline" className="border-primary/30 bg-primary/10">
+                  {movieDetails.genre.split(',')[0]}
+                </Badge>
+              )} */}
+              
+              {movieDetails.duration && (
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Clock className="h-3 w-3 mr-1" />
+                  {formatDuration(movieDetails.duration)}
+                </div>
+              )}
+              
+              {movieDetails.releaseDate && (
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Calendar className="h-3 w-3 mr-1" />
+                  {formatDate(movieDetails.releaseDate)}
+                </div>
+              )}
+            </div>
+            
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={onShowInfo}
+              className="mb-4"
+            >
+              <Info className="h-4 w-4 mr-2" />
+              More Info
+            </Button>
+            
+            {movieDetails.director && (
+              <p className="text-sm text-muted-foreground mt-2">
+                <span className="font-medium">Director:</span> {movieDetails.director}
+              </p>
+            )}
+          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 
