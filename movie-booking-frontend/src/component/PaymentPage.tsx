@@ -18,7 +18,7 @@ import { Badge } from "../components/ui/badge";
 
 const PaymentPage: React.FC = () => {
   const location = useLocation();
-  const { movie, date, time, seats, totalPrice } = location.state || {};
+  const { movie, date, time, seats, totalPrice=450 } = location.state || {};
 
   const [paymentMethod, setPaymentMethod] = useState("credit");
   const [cardNumber, setCardNumber] = useState("");
@@ -70,13 +70,23 @@ const PaymentPage: React.FC = () => {
         setIsProcessing(true);
 
         // Send booking details to backend
-        const response = await axios.post("http://localhost:5000/api/bookings/booking", {
+        const response = await axios.post("https://movizonebackend.onrender.com/api/bookings/booking", {
           movieTitle: movie.title,
           movieId: movie._id,
           date,
           time,
-          seats,
-          totalPrice,
+          seats:[{ "id": "A1",
+            "row": "A",
+            "number": 1,
+            "type": "Regular",
+            "price": 200,
+            "isBooked": true},{"id": "A2",
+      "row": "A",
+      "number": 2,
+      "type": "Regular",
+      "price": 200,
+      "isBooked": true}],
+          totalPrice:'345',
           fullName,
           email,
           phone,
