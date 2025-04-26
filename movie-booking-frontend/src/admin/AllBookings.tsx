@@ -36,7 +36,7 @@ const AllBookings: React.FC = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/bookings/getallbookings');
+        const res = await axios.get('https://movizonebackend.onrender.com/api/bookings/getallbookings');
         setBookings(res.data.bookings);
       } catch (error) {
         console.error('Error fetching bookings:', error);

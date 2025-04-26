@@ -26,7 +26,7 @@ const ManageShows: React.FC = () => {
   useEffect(() => {
     const fetchShows = async () => {
       try {
-        const res = await axios.get<Show[]>('http://localhost:5000/api/shows/getshow');
+        const res = await axios.get<Show[]>('https://movizonebackend.onrender.com/api/shows/getshow');
         setShows(res.data);
       } catch (err) {
         console.error('Failed to load shows:', err);
@@ -40,7 +40,7 @@ const ManageShows: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this show?')) return;
     try {
-      await axios.delete(`http://localhost:5000/api/shows/delete/${id}`);
+      await axios.delete(`https://movizonebackend.onrender.com/api/shows/delete/${id}`);
       setShows((prev) => prev.filter((s) => s._id !== id));
     } catch (err) {
       console.error('Delete failed:', err);

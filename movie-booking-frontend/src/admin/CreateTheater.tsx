@@ -26,7 +26,7 @@ const CreateTheater = () => {
 
   const fetchTheaters = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/theaters/gettheaters");
+      const res = await axios.get("https://movizonebackend.onrender.com/api/theaters/gettheaters");
       setTheaters(res.data);
     } catch (error) {
       toast.error("Error fetching theaters");
