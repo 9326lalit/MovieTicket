@@ -15,9 +15,7 @@ import { Input } from '../../components/ui/input';
 import { Badge } from "../components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Separator } from "../components/ui/separator";
-import {
-  DropdownMenu,
-} from "../../components/ui/dropdown-menu";
+
 import {
   Sheet,
   SheetContent,
@@ -29,10 +27,7 @@ import {
 } from "../../components/ui/sheet";
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
+  
   DialogTrigger,
 } from "../../components/ui/dialog";
 import {
@@ -41,9 +36,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../components/ui/tooltip";
-import { Switch } from "../../components/ui/switch";
 
-import { cn } from "../lib/utils";
 
 import {
   Film,
@@ -56,14 +49,10 @@ import {
   CalendarDays,
   LogOut,
 
-  Settings,
   Heart,
   PlayCircle,
   Star,
   Gift,
-  Moon,
-  Wallet,
-  BookMarked,
   History,
   Mail,
   Share2,
