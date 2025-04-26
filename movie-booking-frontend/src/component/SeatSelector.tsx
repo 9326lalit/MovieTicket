@@ -62,9 +62,119 @@ interface MovieDetails {
   cast: string[];
 }
 
+
 const SeatSelector = () => {
   const { movieId } = useParams<{ movieId: string }>();
   const navigate = useNavigate();
+
+  // Expanded dummySeats array with realistic theater layout
+const dummySeats = [
+  // Row A (Front Row)
+  { id: 'A1', row: 'A', number: 1, type: 'standard', price: 120, isBooked: true },
+  { id: 'A2', row: 'A', number: 2, type: 'standard', price: 120, isBooked: false },
+  { id: 'A3', row: 'A', number: 3, type: 'standard', price: 120, isBooked: false },
+  { id: 'A4', row: 'A', number: 4, type: 'standard', price: 120, isBooked: true },
+  { id: 'A5', row: 'A', number: 5, type: 'premium', price: 180, isBooked: false },
+  { id: 'A6', row: 'A', number: 6, type: 'premium', price: 180, isBooked: false },
+  { id: 'A7', row: 'A', number: 7, type: 'premium', price: 180, isBooked: true },
+  { id: 'A8', row: 'A', number: 8, type: 'premium', price: 180, isBooked: false },
+  { id: 'A9', row: 'A', number: 9, type: 'standard', price: 120, isBooked: false },
+  { id: 'A10', row: 'A', number: 10, type: 'standard', price: 120, isBooked: false },
+  { id: 'A11', row: 'A', number: 11, type: 'standard', price: 120, isBooked: true },
+  { id: 'A12', row: 'A', number: 12, type: 'standard', price: 120, isBooked: false },
+  
+  // Row B
+  { id: 'B1', row: 'B', number: 1, type: 'standard', price: 120, isBooked: false },
+  { id: 'B2', row: 'B', number: 2, type: 'standard', price: 120, isBooked: true },
+  { id: 'B3', row: 'B', number: 3, type: 'standard', price: 120, isBooked: false },
+  { id: 'B4', row: 'B', number: 4, type: 'premium', price: 180, isBooked: false },
+  { id: 'B5', row: 'B', number: 5, type: 'premium', price: 180, isBooked: true },
+  { id: 'B6', row: 'B', number: 6, type: 'vip', price: 220, isBooked: false },
+  { id: 'B7', row: 'B', number: 7, type: 'vip', price: 220, isBooked: false },
+  { id: 'B8', row: 'B', number: 8, type: 'vip', price: 220, isBooked: false },
+  { id: 'B9', row: 'B', number: 9, type: 'vip', price: 220, isBooked: true },
+  { id: 'B10', row: 'B', number: 10, type: 'premium', price: 180, isBooked: false },
+  { id: 'B11', row: 'B', number: 11, type: 'premium', price: 180, isBooked: false },
+  { id: 'B12', row: 'B', number: 12, type: 'standard', price: 120, isBooked: true },
+  { id: 'B13', row: 'B', number: 13, type: 'standard', price: 120, isBooked: false },
+  { id: 'B14', row: 'B', number: 14, type: 'standard', price: 120, isBooked: false },
+  
+  // Row C
+  { id: 'C1', row: 'C', number: 1, type: 'standard', price: 120, isBooked: false },
+  { id: 'C2', row: 'C', number: 2, type: 'standard', price: 120, isBooked: false },
+  { id: 'C3', row: 'C', number: 3, type: 'standard', price: 120, isBooked: true },
+  { id: 'C4', row: 'C', number: 4, type: 'premium', price: 180, isBooked: false },
+  { id: 'C5', row: 'C', number: 5, type: 'premium', price: 180, isBooked: false },
+  { id: 'C6', row: 'C', number: 6, type: 'vip', price: 220, isBooked: false },
+  { id: 'C7', row: 'C', number: 7, type: 'vip', price: 220, isBooked: true },
+  { id: 'C8', row: 'C', number: 8, type: 'vip', price: 220, isBooked: false },
+  { id: 'C9', row: 'C', number: 9, type: 'vip', price: 220, isBooked: false },
+  { id: 'C10', row: 'C', number: 10, type: 'premium', price: 180, isBooked: false },
+  { id: 'C11', row: 'C', number: 11, type: 'premium', price: 180, isBooked: true },
+  { id: 'C12', row: 'C', number: 12, type: 'standard', price: 120, isBooked: false },
+  { id: 'C13', row: 'C', number: 13, type: 'standard', price: 120, isBooked: false },
+  { id: 'C14', row: 'C', number: 14, type: 'standard', price: 120, isBooked: true },
+  { id: 'C15', row: 'C', number: 15, type: 'standard', price: 120, isBooked: false },
+  
+  // Row D
+  { id: 'D1', row: 'D', number: 1, type: 'standard', price: 120, isBooked: false },
+  { id: 'D2', row: 'D', number: 2, type: 'standard', price: 120, isBooked: true },
+  { id: 'D3', row: 'D', number: 3, type: 'standard', price: 120, isBooked: false },
+  { id: 'D4', row: 'D', number: 4, type: 'standard', price: 120, isBooked: false },
+  { id: 'D5', row: 'D', number: 5, type: 'premium', price: 180, isBooked: false },
+  { id: 'D6', row: 'D', number: 6, type: 'premium', price: 180, isBooked: true },
+  { id: 'D7', row: 'D', number: 7, type: 'premium', price: 180, isBooked: false },
+  { id: 'D8', row: 'D', number: 8, type: 'premium', price: 180, isBooked: false },
+  { id: 'D9', row: 'D', number: 9, type: 'premium', price: 180, isBooked: true },
+  { id: 'D10', row: 'D', number: 10, type: 'premium', price: 180, isBooked: false },
+  { id: 'D11', row: 'D', number: 11, type: 'standard', price: 120, isBooked: false },
+  { id: 'D12', row: 'D', number: 12, type: 'standard', price: 120, isBooked: true },
+  { id: 'D13', row: 'D', number: 13, type: 'standard', price: 120, isBooked: false },
+  { id: 'D14', row: 'D', number: 14, type: 'standard', price: 120, isBooked: false },
+  { id: 'D15', row: 'D', number: 15, type: 'standard', price: 120, isBooked: true },
+  { id: 'D16', row: 'D', number: 16, type: 'standard', price: 120, isBooked: false },
+  
+  // Row E
+  { id: 'E1', row: 'E', number: 1, type: 'standard', price: 120, isBooked: true },
+  { id: 'E2', row: 'E', number: 2, type: 'standard', price: 120, isBooked: false },
+  { id: 'E3', row: 'E', number: 3, type: 'standard', price: 120, isBooked: false },
+  { id: 'E4', row: 'E', number: 4, type: 'standard', price: 120, isBooked: true },
+  { id: 'E5', row: 'E', number: 5, type: 'standard', price: 120, isBooked: false },
+  { id: 'E6', row: 'E', number: 6, type: 'standard', price: 120, isBooked: false },
+  { id: 'E7', row: 'E', number: 7, type: 'standard', price: 120, isBooked: true },
+  { id: 'E8', row: 'E', number: 8, type: 'standard', price: 120, isBooked: false },
+  { id: 'E9', row: 'E', number: 9, type: 'standard', price: 120, isBooked: false },
+  { id: 'E10', row: 'E', number: 10, type: 'standard', price: 120, isBooked: true },
+  { id: 'E11', row: 'E', number: 11, type: 'standard', price: 120, isBooked: false },
+  { id: 'E12', row: 'E', number: 12, type: 'standard', price: 120, isBooked: false },
+  { id: 'E13', row: 'E', number: 13, type: 'standard', price: 120, isBooked: true },
+  { id: 'E14', row: 'E', number: 14, type: 'standard', price: 120, isBooked: false },
+  { id: 'E15', row: 'E', number: 15, type: 'standard', price: 120, isBooked: false },
+  { id: 'E16', row: 'E', number: 16, type: 'standard', price: 120, isBooked: true },
+  { id: 'E17', row: 'E', number: 17, type: 'standard', price: 120, isBooked: false },
+  
+  // Row F (Back Row)
+  { id: 'F1', row: 'F', number: 1, type: 'standard', price: 120, isBooked: false },
+  { id: 'F2', row: 'F', number: 2, type: 'standard', price: 120, isBooked: true },
+  { id: 'F3', row: 'F', number: 3, type: 'standard', price: 120, isBooked: false },
+  { id: 'F4', row: 'F', number: 4, type: 'standard', price: 120, isBooked: false },
+  { id: 'F5', row: 'F', number: 5, type: 'standard', price: 120, isBooked: true },
+  { id: 'F6', row: 'F', number: 6, type: 'standard', price: 120, isBooked: false },
+  { id: 'F7', row: 'F', number: 7, type: 'standard', price: 120, isBooked: false },
+  { id: 'F8', row: 'F', number: 8, type: 'standard', price: 120, isBooked: true },
+  { id: 'F9', row: 'F', number: 9, type: 'standard', price: 120, isBooked: false },
+  { id: 'F10', row: 'F', number: 10, type: 'standard', price: 120, isBooked: false },
+  { id: 'F11', row: 'F', number: 11, type: 'standard', price: 120, isBooked: true },
+  { id: 'F12', row: 'F', number: 12, type: 'standard', price: 120, isBooked: false },
+  { id: 'F13', row: 'F', number: 13, type: 'standard', price: 120, isBooked: false },
+  { id: 'F14', row: 'F', number: 14, type: 'standard', price: 120, isBooked: true },
+  { id: 'F15', row: 'F', number: 15, type: 'standard', price: 120, isBooked: false },
+  { id: 'F16', row: 'F', number: 16, type: 'standard', price: 120, isBooked: false },
+  { id: 'F17', row: 'F', number: 17, type: 'standard', price: 120, isBooked: true },
+  { id: 'F18', row: 'F', number: 18, type: 'standard', price: 120, isBooked: false },
+];
+
+  
 
   // State
   const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
@@ -451,6 +561,7 @@ const SeatSelector = () => {
                             <div key={row} className="flex justify-center space-x-2">
                               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(col => (
                                 <Skeleton key={col} className="w-8 h-8 rounded" />
+                                // <h3>1,2,3,4,5,6,7,8,9,0</h3>
                               ))}
                             </div>
                           ))}
@@ -459,10 +570,16 @@ const SeatSelector = () => {
                       </div>
                     ) : (
                       <SeatLayout
-                        seats={seats}
+                        seats={dummySeats}
                         selectedSeats={selectedSeats}
                         handleSeatClick={handleSeatClick}
                       />
+                    //   <SeatLayout 
+                    //   initialSeats={dummySeats}
+                    //   selectedSeats={selectedSeats}
+                    //   handleSeatClick={handleSeatClick}
+                    //   showId="movie-123" // Pass your actual showing ID here
+                    // />
                     )}
                   </div>
 
