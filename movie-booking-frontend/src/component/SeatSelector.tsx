@@ -196,12 +196,15 @@ const dummySeats = [
   const [showInfoDialog, setShowInfoDialog] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [isBookingConfirming, setIsBookingConfirming] = useState(false);
+  const [totalSeats, setTotalSeats] = useState(0)
+
 
   // Filter out past dates
   useEffect(() => {
     if (shows.length > 0) {
       const today = startOfDay(new Date());
       const futureShows = shows.filter(show => isAfter(parseISO(show.date), today));
+      
       
       setFilteredShows(futureShows);
       
@@ -212,6 +215,7 @@ const dummySeats = [
         const earliestDate = new Date(Math.min(...futureShows.map(show => new Date(show.date).getTime())));
         setSelectedDate(earliestDate);
       }
+      
     }
   }, [shows]);
 
@@ -236,11 +240,20 @@ const dummySeats = [
         const res = await axios.get<Show[]>(
           `https://movizonebackend.onrender.com/api/shows/movie/${movieId}`
         );
-
+  
         setShows(res.data);
-
+        if (res.data.length) {
+          setTotalSeats(res.data[0].theater.seats)
+        }
+  
         if (res.data.length > 0) {
           const movie = res.data[0].movie;
+          const theaterSeats = res.data[0].theater.seats;
+          setSeats(theaterSeats); // <-- 🛠️ setSeats added here
+          console.log("Seats are...",seats);
+
+          console.log("Theater Seats Available:", theaterSeats);
+  
           setMovieDetails({
             title: movie.title || "Untitled Movie",
             posterUrl: movie.posterUrl || "https://tse3.mm.bing.net/th?id=OIP.nJ9vpUZxs9Sj3NGhksv3cgHaNK&pid=Api&P=0&h=220",
@@ -261,9 +274,10 @@ const dummySeats = [
         setLoading(false);
       }
     };
-
+  
     fetchShows();
   }, [movieId]);
+  
 
   // Update available times based on filtered shows
   useEffect(() => {
@@ -380,13 +394,22 @@ const dummySeats = [
     setSelectedTab("seats");
   }, []);
 
-  const handleSeatClick = useCallback((seat: Seat) => {
-    if (seat.isBooked) return;
-    setSelectedSeats(prev => prev.some(s => s.id === seat.id)
-      ? prev.filter(s => s.id !== seat.id)
-      : [...prev, seat]
-    );
-  }, []);
+  // const handleSeatClick = useCallback((seat: Seat) => {
+  //   if (seat.isBooked) return;
+  //   setSelectedSeats(prev => prev.some(s => s.id === seat.id)
+  //     ? prev.filter(s => s.id !== seat.id)
+  //     : [...prev, seat]
+  //   );
+  // }, []);
+
+  const handleSeatClick = (seatNumber: number) => {
+    if (selectedSeats.includes(seatNumber)) {
+      setSelectedSeats(selectedSeats.filter((seat) => seat !== seatNumber));
+    } else {
+      setSelectedSeats([...selectedSeats, seatNumber]);
+    }
+  };
+  
 
   const handleConfirmBooking = useCallback(async () => {
     if (!selectedSeats.length) return;
@@ -569,17 +592,19 @@ const dummySeats = [
                         <p className="text-sm text-muted-foreground">Loading seat availability...</p>
                       </div>
                     ) : (
+                      // <SeatLayout
+                      //   seats={seats}
+                      //   selectedSeats={selectedSeats}
+                      //   handleSeatClick={handleSeatClick}
+                      // />
+
                       <SeatLayout
-                        seats={dummySeats}
-                        selectedSeats={selectedSeats}
-                        handleSeatClick={handleSeatClick}
-                      />
-                    //   <SeatLayout 
-                    //   initialSeats={dummySeats}
-                    //   selectedSeats={selectedSeats}
-                    //   handleSeatClick={handleSeatClick}
-                    //   showId="movie-123" // Pass your actual showing ID here
-                    // />
+                      totalSeats={totalSeats}
+                      selectedSeats={selectedSeats}
+                      handleSeatClick={handleSeatClick}
+                    />
+
+                   
                     )}
                   </div>
 

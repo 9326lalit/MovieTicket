@@ -1,6 +1,6 @@
 // app/dashboard/Sidebar.tsx
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Video, Theater, CalendarPlus, Users } from 'lucide-react';
+import { LayoutDashboard, Video, Theater, CalendarPlus, Users,BookIcon } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const links = [
@@ -9,6 +9,7 @@ const links = [
   { title: 'Create Show', icon: CalendarPlus, path: '/dashboard/createshow' },
   { title: 'Create Theater', icon: Theater, path: '/dashboard/createtheater' },
   { title: 'Manage Shows', icon: LayoutDashboard, path: '/dashboard/manageshows' },
+  { title: 'Bookings', icon: BookIcon, path: '/dashboard/bookings' },
   { title: 'Users', icon: Users, path: '/dashboard/users' }
 ];
 

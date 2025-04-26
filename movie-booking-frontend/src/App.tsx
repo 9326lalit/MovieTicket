@@ -13,6 +13,7 @@ import DashboardLayout from './admin/DashboardLayout.tsx';
 import ManageShows from './admin/ManageShows.tsx';
 import CreateTheater from './admin/CreateTheater.tsx';
 import CommingSoon from './pages/comingsoon.tsx';
+import AllBookings from './admin/AllBookings.tsx';
 // import CommingSoon from './pages/comingsoon.tsx';
 
 
@@ -40,7 +41,7 @@ const App = () => {
           <Route path="createtheater" element={<CreateTheater />} />
           <Route path="createshow" element={<CreateShow />} />
           <Route path="manageshows" element={<ManageShows />} />
-          {/* <Route path="users" element={<Users />} /> */}
+          <Route path="bookings" element={<AllBookings />} />
         </Route>
       </Routes>
 
