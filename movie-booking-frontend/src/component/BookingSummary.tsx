@@ -43,7 +43,14 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
   handleConfirmBooking
 }) => {
   // Calculate total price
-  const totalPrice = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
+  // const totalPrice = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);.
+  const seatPrice = 150; // har ek seat ka fix price
+
+  console.log("In booking summary",selectedSeats);
+  var totalPrice = selectedSeats.length * seatPrice; // total ka calculation
+  // const totalPrice = selectedSeats.reduce((sum, seatNumber) => sum + Number(seatNumber.price || 0), 0);
+
+  console.log("BOoking summary Total price", totalPrice);
   
   // Group selected seats by type
   const seatsByType = selectedSeats.reduce<Record<string, Seat[]>>((acc, seat) => {
@@ -86,14 +93,18 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
           <h4 className="text-sm font-medium">Selected Seats</h4>
           
           <div className="space-y-2">
-            {Object.entries(seatsByType).map(([type, seats]) => (
+            {
+            Object.entries(seatsByType).map(([type, seats]) => (
               <div key={type} className="flex justify-between text-sm">
                 <span className="capitalize">
-                  {type} ({seats.length}) - {seats.map(s => s.id).join(', ')}
+                  {type} ({seats.length}) - {seats.map(s => s).join(', ')}
                 </span>
-                <span>${seats.reduce((sum, seat) => sum + seat.price, 0)}</span>
+                {/* <span>${seats.reduce((sum, seat) => sum + seat.price, 0)}</span> */}
+                <span>${totalPrice}</span>
+
               </div>
-            ))}
+            ))
+            }
           </div>
           
           <div className="border-t pt-2 mt-2">

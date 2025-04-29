@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import socket from "../socket";
 
 // Import shadcn components
-import {Button} from "../components/ui/button";
+import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { RadioGroup, RadioGroupItem } from "../../components/ui/radio-group";
@@ -18,7 +18,9 @@ import { Badge } from "../components/ui/badge";
 
 const PaymentPage: React.FC = () => {
   const location = useLocation();
-  const { movie, date, time, seats, totalPrice=450 } = location.state || {};
+  const { movie, date, time, seats, totalPrice } = location.state || {};
+  console.log("payment seats", seats);
+  console.log("total price", totalPrice);
 
   const [paymentMethod, setPaymentMethod] = useState("credit");
   const [cardNumber, setCardNumber] = useState("");
@@ -65,6 +67,7 @@ const PaymentPage: React.FC = () => {
     if (!phone || phone.length < 10) newErrors.phone = "Phone number is invalid";
     setErrors(newErrors);
 
+
     if (Object.keys(newErrors).length === 0) {
       try {
         setIsProcessing(true);
@@ -75,18 +78,19 @@ const PaymentPage: React.FC = () => {
           movieId: movie._id,
           date,
           time,
-          seats:[{ "id": "A1",
-            "row": "A",
-            "number": 1,
-            "type": "Regular",
-            "price": 200,
-            "isBooked": true},{"id": "A2",
-      "row": "A",
-      "number": 2,
-      "type": "Regular",
-      "price": 200,
-      "isBooked": true}],
-          totalPrice:'345',
+          //     seats:[{ "id": "A1",
+          //       "row": "A",
+          //       "number": 1,
+          //       "type": "Regular",
+          //       "price": 200,
+          //       "isBooked": true},{"id": "A2",
+          // "row": "A",
+          // "number": 2,
+          // "type": "Regular",
+          // "price": 200,
+          // "isBooked": true}],
+          seats: seats,
+          totalPrice: totalPrice,
           fullName,
           email,
           phone,
@@ -141,7 +145,7 @@ const PaymentPage: React.FC = () => {
     <div className="min-h-screen bg-slate-50 text-slate-900 py-12">
       <div className="container mx-auto px-4">
         <h1 className="text-3xl font-bold text-center mb-8">Complete Your Booking</h1>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Column - Booking Summary */}
           <div className="lg:col-span-5">
@@ -154,13 +158,13 @@ const PaymentPage: React.FC = () => {
                   Review your movie tickets
                 </CardDescription>
               </CardHeader>
-              
+
               <CardContent className="pt-6">
                 <div className="flex space-x-4 items-start mb-6">
-                  <img 
-                    src={movie.posterUrl} 
-                    alt={movie.title} 
-                    className="w-24 h-36 object-cover rounded-lg shadow-sm" 
+                  <img
+                    src={movie.posterUrl}
+                    alt={movie.title}
+                    className="w-24 h-36 object-cover rounded-lg shadow-sm"
                   />
                   <div>
                     <h3 className="text-lg font-semibold text-slate-900">{movie.title}</h3>
@@ -178,9 +182,9 @@ const PaymentPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <Separator className="my-4" />
-                
+
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center">
@@ -189,7 +193,7 @@ const PaymentPage: React.FC = () => {
                     </div>
                     <span className="text-sm">{formattedDate}</span>
                   </div>
-                  
+
                   <div className="flex justify-between items-center">
                     <div className="flex items-center">
                       <span className="text-slate-500 mr-2">🕒</span>
@@ -197,25 +201,33 @@ const PaymentPage: React.FC = () => {
                     </div>
                     <span className="text-sm">{time}</span>
                   </div>
-                  
+
                   <div>
                     <div className="flex items-center mb-2">
                       <span className="text-slate-500 mr-2">💺</span>
                       <span className="text-sm font-medium">Seats</span>
                     </div>
                     <div className="flex flex-wrap gap-2 mt-1">
-                      {seats.map(seat => (
-  <p key={seat.id}>
-    Row: {seat.row}, Number: {seat.number}, Type: {seat.type}, Price: ₹{seat.price}
-  </p>
-))}
+                      {/* {seats.map((i, seat) => (
+                        <p key={i}>
+                          Row: {seat.row}, Number: {seat.number}, Type: {seat.type}, Price: ₹{seat.price}
+                          {seats}
+                        </p>
+                      ))} */}
+
+                      {seats.map((seats: any, index: number) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {seats}
+                        </Badge>
+                      ))}
+
 
                     </div>
                   </div>
                 </div>
-                
+
                 <Separator className="my-4" />
-                
+
                 <div className="flex justify-between items-center pt-2">
                   <span className="font-semibold text-slate-900">Total Price:</span>
                   <span className="text-lg font-bold text-green-600">${totalPrice}</span>
@@ -223,7 +235,7 @@ const PaymentPage: React.FC = () => {
               </CardContent>
             </Card>
           </div>
-          
+
           {/* Right Column - Payment Form */}
           <div className="lg:col-span-7">
             <Card>
@@ -235,7 +247,7 @@ const PaymentPage: React.FC = () => {
                   Complete your booking by providing payment information
                 </CardDescription>
               </CardHeader>
-              
+
               <CardContent className="space-y-6">
                 <div className="space-y-3">
                   <div className="space-y-2">
@@ -256,9 +268,9 @@ const PaymentPage: React.FC = () => {
                     </RadioGroup>
                   </div>
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="card-number">Card Number</Label>
@@ -274,7 +286,7 @@ const PaymentPage: React.FC = () => {
                       <p className="text-red-500 text-sm">{errors.cardNumber}</p>
                     )}
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="expiry-date">Expiry Date</Label>
@@ -290,7 +302,7 @@ const PaymentPage: React.FC = () => {
                         <p className="text-red-500 text-sm">{errors.expiryDate}</p>
                       )}
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label htmlFor="cvv">CVV</Label>
                       <Input
@@ -307,9 +319,9 @@ const PaymentPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="full-name">Cardholder Name</Label>
@@ -325,7 +337,7 @@ const PaymentPage: React.FC = () => {
                       <p className="text-red-500 text-sm">{errors.fullName}</p>
                     )}
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -340,7 +352,7 @@ const PaymentPage: React.FC = () => {
                       <p className="text-red-500 text-sm">{errors.email}</p>
                     )}
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input
@@ -357,7 +369,7 @@ const PaymentPage: React.FC = () => {
                   </div>
                 </div>
               </CardContent>
-              
+
               <CardFooter className="flex flex-col space-y-4">
                 <Button
                   onClick={handlePaymentSubmit}
@@ -385,7 +397,7 @@ const PaymentPage: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       <ToastContainer />
     </div>
   );
