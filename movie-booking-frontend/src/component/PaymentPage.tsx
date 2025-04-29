@@ -279,7 +279,7 @@ const PaymentPage: React.FC = () => {
                       type="text"
                       value={cardNumber}
                       onChange={(e) => setCardNumber(e.target.value)}
-                      placeholder="1234 5678 9012 3456"
+                      placeholder="12345"
                       className={errors.cardNumber ? "border-red-500" : ""}
                     />
                     {errors.cardNumber && (
