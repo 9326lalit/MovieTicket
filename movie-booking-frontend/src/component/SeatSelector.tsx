@@ -86,7 +86,7 @@ const SeatSelector = () => {
       const futureShows = shows.filter(show => isAfter(parseISO(show.date), today));
       
       setFilteredShows(futureShows);
-      
+      // console.log("selected date",selectedDate); 
       if (futureShows.length === 0) {
         setNoFutureShows(true);
       } else {
@@ -226,16 +226,16 @@ const SeatSelector = () => {
   setSelectedSeats(updatedSeats);
 
   // Yaha console karo
-  console.log("Selected seats with price:");
-  updatedSeats.forEach((seatNumber) => {
-    console.log(`Seat ${seatNumber} - ₹${seatPrice}`);
-  });
+  // console.log("Selected seats with price:");
+  // updatedSeats.forEach((seatNumber) => {
+  //   console.log(`Seat ${seatNumber} - ₹${seatPrice}`);
+  // });
   };
 
   
   const handleConfirmBooking = useCallback(async () => {
     if (!selectedSeats.length) return;
-    console.log(selectedSeats)
+    // console.log(selectedSeats)
 
     setIsBookingConfirming(true);
     try {

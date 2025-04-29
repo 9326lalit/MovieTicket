@@ -46,11 +46,11 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
   // const totalPrice = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);.
   const seatPrice = 150; // har ek seat ka fix price
 
-  console.log("In booking summary",selectedSeats);
+  // console.log("In booking summary",selectedSeats);
   var totalPrice = selectedSeats.length * seatPrice; // total ka calculation
   // const totalPrice = selectedSeats.reduce((sum, seatNumber) => sum + Number(seatNumber.price || 0), 0);
 
-  console.log("BOoking summary Total price", totalPrice);
+  // console.log("BOoking summary Total price", totalPrice);
   
   // Group selected seats by type
   const seatsByType = selectedSeats.reduce<Record<string, Seat[]>>((acc, seat) => {

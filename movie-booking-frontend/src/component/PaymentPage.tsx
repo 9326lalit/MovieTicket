@@ -19,8 +19,8 @@ import { Badge } from "../components/ui/badge";
 const PaymentPage: React.FC = () => {
   const location = useLocation();
   const { movie, date, time, seats, totalPrice } = location.state || {};
-  console.log("payment seats", seats);
-  console.log("total price", totalPrice);
+  // console.log("payment seats", seats);
+  // console.log("total price", totalPrice);
 
   const [paymentMethod, setPaymentMethod] = useState("credit");
   const [cardNumber, setCardNumber] = useState("");
@@ -50,7 +50,7 @@ const PaymentPage: React.FC = () => {
 
   useEffect(() => {
     socket.on("booking-confirmed", (data) => {
-      console.log("Received real-time booking data:", data);
+      // console.log("Received real-time booking data:", data);
       toast.success("New booking confirmed!");
     });
 
@@ -59,7 +59,7 @@ const PaymentPage: React.FC = () => {
 
   const handlePaymentSubmit = async () => {
     const newErrors: any = {};
-    if (!cardNumber || cardNumber.length < 16) newErrors.cardNumber = "Card number is invalid";
+    if (!cardNumber || cardNumber.length < 5) newErrors.cardNumber = "Card number is invalid";
     if (!expiryDate) newErrors.expiryDate = "Expiry date is required";
     if (!cvv || cvv.length !== 3) newErrors.cvv = "CVV is invalid";
     if (!fullName) newErrors.fullName = "Full name is required";
@@ -118,7 +118,7 @@ const PaymentPage: React.FC = () => {
           });
         }
       } catch (error) {
-        console.error("Payment error:", error);
+        // console.error("Payment error:", error);
         toast.error("Payment failed. Please check your details and try again.", {
           position: "top-right",
           autoClose: 5000,
