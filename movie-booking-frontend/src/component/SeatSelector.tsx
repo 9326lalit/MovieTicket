@@ -18,6 +18,7 @@ import TimeSelector from "./TimeSelector";
 import SeatLayout from "./SeatLayout";
 import BookingSummary from "./BookingSummary";
 import MovieDetailsDialog from "./MovieDetailsDialog";
+import { title } from 'process';
 
 interface MovieDetails {
   title: string;
@@ -77,6 +78,8 @@ const SeatSelector = () => {
   const [showInfoDialog, setShowInfoDialog] = useState(false);
   const [isBookingConfirming, setIsBookingConfirming] = useState(false);
   const [totalSeats, setTotalSeats] = useState(0);
+  const [bookedSeats, setBookedSeats] = useState([]);
+
 
   // console.log(totalSeats);
   // Filter out past dates
@@ -84,7 +87,7 @@ const SeatSelector = () => {
     if (shows.length > 0) {
       const today = startOfDay(new Date());
       const futureShows = shows.filter(show => isAfter(parseISO(show.date), today));
-      
+
       setFilteredShows(futureShows);
       // console.log("selected date",selectedDate); 
       if (futureShows.length === 0) {
@@ -96,7 +99,7 @@ const SeatSelector = () => {
       }
     }
   }, [shows]);
-  
+
 
   // Memoize theaters list from filtered shows
   const theaters = useMemo(() =>
@@ -111,16 +114,16 @@ const SeatSelector = () => {
         const res = await axios.get<Show[]>(
           `https://movizonebackend.onrender.com/api/shows/movie/${movieId}`
         );
-  
-        
+
+
         setShows(res.data);
         if (res.data.length) {
           setTotalSeats(res.data[0].theater.seats);
         }
-  
+
         if (res.data.length > 0) {
           const movie = res.data[0].movie;
-  
+
           setMovieDetails({
             title: movie.title || "Untitled Movie",
             posterUrl: movie.posterUrl || "https://tse3.mm.bing.net/th?id=OIP.nJ9vpUZxs9Sj3NGhksv3cgHaNK&pid=Api&P=0&h=220",
@@ -141,10 +144,10 @@ const SeatSelector = () => {
         setLoading(false);
       }
     };
-  
+
     fetchShows();
   }, [movieId]);
-  
+
   // Update available times based on filtered shows
   useEffect(() => {
     if (theaters.length > 0 && !selectedTheater) {
@@ -169,6 +172,38 @@ const SeatSelector = () => {
     setSelectedShowId(null);
     setSelectedSeats([]);
   }, [selectedDate, selectedTheater, filteredShows, theaters]);
+
+
+
+
+  //for seat layout
+  // Fetch booked seats
+  useEffect(() => {
+    if (!selectedTime || !selectedDate || !movieDetails) return;
+
+    const fetchBookedSeats = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/bookings/booked', {
+          params: {
+            movieTitle: movieDetails.title,
+            date: format(selectedDate, 'yyyy-MM-dd'),
+            time: selectedTime,
+          }
+        });
+        console.log(movieDetails.title , selectedDate , selectedTime);
+        setBookedSeats(response.data.bookedSeats);
+      } catch (error) {
+        console.error('Error fetching booked seats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookedSeats();
+  }, [selectedTime, selectedDate, movieDetails]);
+
+
+
 
   // Fetch seat availability
   const fetchSeatAvailability = useCallback(async () => {
@@ -212,27 +247,24 @@ const SeatSelector = () => {
   const seatPrice = 150; // 1 seat ka price fix
 
   const handleSeatClick = (seatNumber: number) => {
-    
+    if (bookedSeats.includes(seatNumber)) {
+      alert("This seat is already booked.");
+      return;
+    }
+
     let updatedSeats = [];
 
-  if (selectedSeats.includes(seatNumber)) {
-    // Agar already select hai to remove kar do
-    updatedSeats = selectedSeats.filter((s) => s !== seatNumber);
-  } else {
-    // Nahi hai to add kar do
-    updatedSeats = [...selectedSeats, seatNumber];
-  }
+    if (selectedSeats.includes(seatNumber)) {
+      updatedSeats = selectedSeats.filter((s) => s !== seatNumber);
+    } else {
+      updatedSeats = [...selectedSeats, seatNumber];
+    }
 
-  setSelectedSeats(updatedSeats);
-
-  // Yaha console karo
-  // console.log("Selected seats with price:");
-  // updatedSeats.forEach((seatNumber) => {
-  //   console.log(`Seat ${seatNumber} - ₹${seatPrice}`);
-  // });
+    setSelectedSeats(updatedSeats);
   };
 
-  
+
+
   const handleConfirmBooking = useCallback(async () => {
     if (!selectedSeats.length) return;
     // console.log(selectedSeats)
@@ -297,7 +329,7 @@ const SeatSelector = () => {
             onShowInfo={() => setShowInfoDialog(true)}
           />
         )}
-        
+
         <Alert className="mt-8 max-w-2xl mx-auto">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>No upcoming shows</AlertTitle>
@@ -305,7 +337,7 @@ const SeatSelector = () => {
             There are no future shows scheduled for this movie. Please check back later or explore other movies.
           </AlertDescription>
         </Alert>
-        
+
         <div className="flex justify-center mt-6">
           <Button onClick={() => navigate("/movies")}>
             Browse Other Movies
@@ -418,7 +450,9 @@ const SeatSelector = () => {
                         totalSeats={totalSeats}
                         selectedSeats={selectedSeats}
                         handleSeatClick={handleSeatClick}
+                        bookedSeats={bookedSeats} // Make sure this is an array
                       />
+
                     )}
                   </div>
 
