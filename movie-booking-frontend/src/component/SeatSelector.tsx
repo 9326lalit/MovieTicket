@@ -183,7 +183,7 @@ const SeatSelector = () => {
 
     const fetchBookedSeats = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/bookings/booked', {
+        const response = await axios.get('https://movizonebackend.onrender.com/api/bookings/booked', {
           params: {
             movieTitle: movieDetails.title,
             date: format(selectedDate, 'yyyy-MM-dd'),
