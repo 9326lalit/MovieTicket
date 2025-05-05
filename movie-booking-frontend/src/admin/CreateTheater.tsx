@@ -45,7 +45,7 @@ const CreateTheater = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/theaters/createtheater", {
+      await axios.post("https://movizonebackend.onrender.com/api/theaters/createtheater", {
         ...form,
         seats: parseInt(form.seats),
       });

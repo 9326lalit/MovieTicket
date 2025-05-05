@@ -1,0 +1,50 @@
+# Movie Ticket Booking System
+
+## Project Overview
+This is a **MERN Stack** project for a Movie Ticket Booking System. It allows users to browse movies, select showtimes, and book tickets online. The system is designed to be user-friendly and efficient, making it easy for developers to maintain and extend.
+
+## Features
+- **User Authentication**: Secure login and registration using JWT.
+- **Movie Management**: Add, update, and delete movies (Admin feature).
+- **Showtime Management**: Manage showtimes for movies (Admin feature).
+- **Ticket Booking**: Users can book tickets for available showtimes.
+- **Payment Integration**: Integrated with payment gateways for secure transactions.
+- **Responsive Design**: Fully responsive UI for all devices.
+
+## Tech Stack
+- **Frontend**: React.js, Redux, Bootstrap
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB
+- **Authentication**: JSON Web Tokens (JWT)
+- **Payment Gateway**: Stripe/PayPal (configurable)
+
+## Folder Structure
+
+## Backend APIs
+The backend provides a set of RESTful APIs to handle various functionalities of the system. Below is an overview of the key APIs:
+
+### Authentication APIs
+- **POST /api/auth/register**: Register a new user.
+- **POST /api/auth/login**: Authenticate a user and return a JWT token.
+
+### Movie Management APIs (Admin Only)
+- **GET /api/movies**: Fetch all movies.
+- **POST /api/movies**: Add a new movie.
+- **PUT /api/movies/:id**: Update an existing movie.
+- **DELETE /api/movies/:id**: Delete a movie.
+
+### Showtime Management APIs (Admin Only)
+- **GET /api/showtimes**: Fetch all showtimes.
+- **POST /api/showtimes**: Add a new showtime.
+- **PUT /api/showtimes/:id**: Update an existing showtime.
+- **DELETE /api/showtimes/:id**: Delete a showtime.
+
+### Ticket Booking APIs
+- **GET /api/bookings**: Fetch all bookings for the logged-in user.
+- **POST /api/bookings**: Create a new booking.
+- **GET /api/bookings/:id**: Fetch details of a specific booking.
+
+### Payment APIs
+- **POST /api/payments**: Process a payment for a booking.
+
+Each API is secured using JWT-based authentication, and role-based access control is implemented for admin-specific features.
