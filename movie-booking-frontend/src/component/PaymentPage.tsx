@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
@@ -19,9 +17,7 @@ import { Badge } from "../components/ui/badge";
 const PaymentPage: React.FC = () => {
   const location = useLocation();
   const { movie, date, time, seats, totalPrice } = location.state || {};
-  // console.log("payment seats", seats);
-  // console.log("total price", totalPrice);
-
+  
   const [paymentMethod, setPaymentMethod] = useState("credit");
   const [cardNumber, setCardNumber] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
@@ -31,6 +27,23 @@ const PaymentPage: React.FC = () => {
   const [phone, setPhone] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState<any>({});
+
+  // Format the date for display
+  const formattedDisplayDate = date ? new Date(date).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }) : '';
+
+  // Format the date for backend storage (YYYY-MM-DD)
+  const formatDateForBackend = (dateString: string) => {
+    const dateObj = new Date(dateString);
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   if (!movie || !date || !time || !seats) {
     return (
@@ -50,7 +63,6 @@ const PaymentPage: React.FC = () => {
 
   useEffect(() => {
     socket.on("booking-confirmed", (data) => {
-      // console.log("Received real-time booking data:", data);
       toast.success("New booking confirmed!");
     });
 
@@ -67,35 +79,40 @@ const PaymentPage: React.FC = () => {
     if (!phone || phone.length < 10) newErrors.phone = "Phone number is invalid";
     setErrors(newErrors);
 
-
     if (Object.keys(newErrors).length === 0) {
       try {
         setIsProcessing(true);
+        
+        // Format the date for backend storage
+        const formattedBackendDate = formatDateForBackend(date);
+        
+        // Convert seats array to numbers if they're strings
+        const numericSeats = seats.map((seat: any) => 
+          typeof seat === 'string' ? parseInt(seat, 10) : seat
+        );
+
+        // Prepare data in the exact format required
+        const bookingData = {
+          movieTitle: movie.title,
+          date: formattedBackendDate,
+          time: time,
+          seats: numericSeats,
+          totalPrice: totalPrice,
+          paymentMethod: paymentMethod,
+          cardNumber: cardNumber,
+          fullName: fullName,
+          email: email,
+          phone: phone
+        };
+
+        // For debugging - can be removed in production
+        console.log("Sending booking data:", JSON.stringify(bookingData));
 
         // Send booking details to backend
-        const response = await axios.post("https://movizonebackend.onrender.com/api/bookings/booking", {
-          movieTitle: movie.title,
-          movieId: movie._id,
-          date,
-          time,
-          //     seats:[{ "id": "A1",
-          //       "row": "A",
-          //       "number": 1,
-          //       "type": "Regular",
-          //       "price": 200,
-          //       "isBooked": true},{"id": "A2",
-          // "row": "A",
-          // "number": 2,
-          // "type": "Regular",
-          // "price": 200,
-          // "isBooked": true}],
-          seats: seats,
-          totalPrice: totalPrice,
-          fullName,
-          email,
-          phone,
-          paymentMethod,
-          cardNumber,
+        const response = await axios.post("https://movizonebackend.onrender.com/api/bookings/booking", bookingData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
 
         if (response.status === 200 || response.status === 201) {
@@ -118,7 +135,7 @@ const PaymentPage: React.FC = () => {
           });
         }
       } catch (error) {
-        // console.error("Payment error:", error);
+        console.error("Booking error:", error);
         toast.error("Payment failed. Please check your details and try again.", {
           position: "top-right",
           autoClose: 5000,
@@ -132,14 +149,6 @@ const PaymentPage: React.FC = () => {
       }
     }
   };
-
-  // Format date to be more readable
-  const formattedDate = new Date(date).toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 py-12">
@@ -191,7 +200,7 @@ const PaymentPage: React.FC = () => {
                       <span className="text-slate-500 mr-2">📅</span>
                       <span className="text-sm font-medium">Date</span>
                     </div>
-                    <span className="text-sm">{formattedDate}</span>
+                    <span className="text-sm">{formattedDisplayDate}</span>
                   </div>
 
                   <div className="flex justify-between items-center">
@@ -208,20 +217,11 @@ const PaymentPage: React.FC = () => {
                       <span className="text-sm font-medium">Seats</span>
                     </div>
                     <div className="flex flex-wrap gap-2 mt-1">
-                      {/* {seats.map((i, seat) => (
-                        <p key={i}>
-                          Row: {seat.row}, Number: {seat.number}, Type: {seat.type}, Price: ₹{seat.price}
-                          {seats}
-                        </p>
-                      ))} */}
-
-                      {seats.map((seats: any, index: number) => (
+                      {seats.map((seat: any, index: number) => (
                         <Badge key={index} variant="outline" className="text-xs">
-                          {seats}
+                          {seat}
                         </Badge>
                       ))}
-
-
                     </div>
                   </div>
                 </div>

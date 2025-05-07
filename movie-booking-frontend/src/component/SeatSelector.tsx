@@ -18,7 +18,6 @@ import TimeSelector from "./TimeSelector";
 import SeatLayout from "./SeatLayout";
 import BookingSummary from "./BookingSummary";
 import MovieDetailsDialog from "./MovieDetailsDialog";
-import { title } from 'process';
 
 interface MovieDetails {
   title: string;
