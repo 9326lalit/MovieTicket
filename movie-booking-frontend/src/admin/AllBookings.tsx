@@ -66,7 +66,7 @@ const AllBookings: React.FC = () => {
             <CardContent className="p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-indigo-700">{booking.movieTitle}</h2>
-                <span className="text-sm text-gray-500">📅 {new Date(booking.createdAt).toLocaleDateString()}</span>
+                <span className="text-sm text-gray-500">📅  Date {new Date(booking.createdAt).toLocaleDateString()}</span>
               </div>
               <Separator className="my-2" />
               <div className="text-sm text-gray-700 space-y-1">
